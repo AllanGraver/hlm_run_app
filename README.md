@@ -1,36 +1,43 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# HLM Run App
 
-## Getting Started
+HLM Run App er en løbe-app til at beregne og planlægge træning, restitution og løbsstrategi.
 
-First, run the development server:
+Live app: https://allangraver.github.io/hlm_run_app/
+
+## Hvad kan du bruge siderne til?
+
+Appen indeholder flere værktøjer, der hjælper løbere med at træffe bedre beslutninger om træning og konkurrence:
+
+- VDOT: Beregn din løbeform ud fra en nylig løbspræstation og få vejledende træningstempoer.
+- VO₂max: Estimér din aerobe kapacitet ud fra enten Cooper-testen eller pulsdata.
+- Træningsbelastning: Vurder om et træningspas er let, moderat eller hårdt i forhold til din samlede belastning.
+- Restitution: Få et estimat af, hvor lang tid du bør vente før næste hårde træningspas.
+- Løbsstrategi: Planlæg en realistisk pacingstrategi for 5 km, 10 km, halvmaraton eller maraton.
+- Energistrategi: Se et forslag til energi, væske og salt under længere løb.
+- Checklister: Gennemgå, om du er klar til løbet, og få styr på søvn, stress, smerter og motivation.
+- Øvelsesbibliotek: Få inspiration til opvarmning, teknikdrills og løbeøvelser.
+
+## Kør lokalt
 
 ```bash
+npm install
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Derefter åbner du http://localhost:3000.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Deploy til GitHub Pages
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+Projektet er konfigureret til statisk eksport, så det kan hostes på GitHub Pages.
 
-## Learn More
+1. Push projektet til GitHub.
+2. Aktiver GitHub Pages i repoets indstillinger.
+3. Vælg "GitHub Actions" som kilde.
+4. Workflowet i `.github/workflows/deploy-pages.yml` bygger og deployer appen automatisk.
 
-To learn more about Next.js, take a look at the following resources:
+## Teknologi
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+- Next.js
+- React
+- TypeScript
+- Tailwind CSS
