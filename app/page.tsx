@@ -10,6 +10,7 @@ import {
   Download,
   Gauge,
   Info,
+  Menu,
   Printer,
   RotateCcw,
   Save,
@@ -212,6 +213,7 @@ const runningWorkouts = [
 export default function VdotCalculator() {
   const [activePage, setActivePage] = useState<PageKey>("home");
   const [expandedSection, setExpandedSection] = useState<string | null>(null);
+  const [mobileNavOpen, setMobileNavOpen] = useState(false);
   const [energyDistance, setEnergyDistance] = useState(21);
   const [energyHours, setEnergyHours] = useState(2);
   const [energyMinutes, setEnergyMinutes] = useState(0);
@@ -690,33 +692,60 @@ export default function VdotCalculator() {
           </div>
         </header>
 
-        <nav aria-label="Hovednavigation" className="no-print mb-6 grid gap-2 rounded-2xl border border-white/10 bg-white/[0.045] p-2 sm:mb-8 sm:grid-cols-2 lg:grid-cols-5">
-          {navigationSections.map((section) => {
-            const SectionIcon = section.icon;
-            const isActive = section.pages.some((page) => page.key === activePage);
+        <div className="no-print mb-6 sm:mb-8">
+          <div className="flex justify-end sm:hidden">
+            <button
+              type="button"
+              aria-label={mobileNavOpen ? "Luk navigation" : "Åbn navigation"}
+              aria-expanded={mobileNavOpen}
+              onClick={() => setMobileNavOpen((current) => !current)}
+              className="inline-flex h-11 w-11 items-center justify-center rounded-xl border border-white/10 bg-white/[0.05] text-slate-200 transition hover:bg-white/10"
+            >
+              {mobileNavOpen ? <X size={18} /> : <Menu size={18} />}
+            </button>
+          </div>
 
-            return (
-              <div key={section.label} className="rounded-xl border border-white/10 bg-slate-950/40 p-1.5">
-                <div className={`flex min-h-11 items-center gap-2 rounded-lg px-3 text-sm font-semibold ${isActive ? "bg-cyan-400 text-slate-950" : "text-slate-400"}`}>
-                  <SectionIcon size={16} />
-                  <span>{section.label}</span>
+          <nav aria-label="Hovednavigation" className={`${mobileNavOpen ? "flex" : "hidden"} mt-3 flex-col gap-2 rounded-2xl border border-white/10 bg-white/[0.045] p-2 sm:mt-0 sm:flex sm:grid sm:grid-cols-2 sm:gap-2 lg:grid-cols-5`}>
+            {navigationSections.map((section) => {
+              const SectionIcon = section.icon;
+              const isActive = section.pages.some((page) => page.key === activePage);
+              const isExpanded = expandedSection === section.label;
+              const shouldShowItems = isExpanded || !mobileNavOpen;
+
+              return (
+                <div key={section.label} className="group relative rounded-xl border border-white/10 bg-slate-950/40 p-1.5">
+                  <button
+                    type="button"
+                    aria-haspopup="true"
+                    aria-expanded={isExpanded}
+                    onClick={() => setExpandedSection((current) => current === section.label ? null : section.label)}
+                    className={`flex min-h-11 w-full items-center justify-between gap-2 rounded-lg px-3 text-left text-sm font-semibold transition ${isActive ? "bg-cyan-400 text-slate-950" : "text-slate-400 hover:bg-white/10 hover:text-white"}`}
+                  >
+                    <span className="inline-flex items-center gap-2"><SectionIcon size={16} /> {section.label}</span>
+                    <ChevronDown className={`shrink-0 transition ${isExpanded ? "rotate-180" : ""}`} size={16} />
+                  </button>
+
+                  <div className={`${shouldShowItems ? "block" : "hidden"} mt-2 space-y-1 sm:block`}>
+                    {section.pages.map((page) => (
+                      <button
+                        key={page.key}
+                        onClick={() => {
+                          setActivePage(page.key);
+                          setExpandedSection(null);
+                          setMobileNavOpen(false);
+                        }}
+                        aria-current={activePage === page.key ? "page" : undefined}
+                        className={`flex min-h-10 w-full items-center rounded-lg px-3 text-left text-sm transition ${activePage === page.key ? "bg-cyan-400/10 text-cyan-300" : "text-slate-300 hover:bg-white/10 hover:text-white"}`}
+                      >
+                        {page.label}
+                      </button>
+                    ))}
+                  </div>
                 </div>
-                <div className="mt-2 space-y-1">
-                  {section.pages.map((page) => (
-                    <button
-                      key={page.key}
-                      onClick={() => setActivePage(page.key)}
-                      aria-current={activePage === page.key ? "page" : undefined}
-                      className={`flex min-h-10 w-full items-center rounded-lg px-3 text-left text-sm transition ${activePage === page.key ? "bg-cyan-400/10 text-cyan-300" : "text-slate-300 hover:bg-white/10 hover:text-white"}`}
-                    >
-                      {page.label}
-                    </button>
-                  ))}
-                </div>
-              </div>
-            );
-          })}
-        </nav>
+              );
+            })}
+          </nav>
+        </div>
 
         <section className="mb-6 rounded-3xl border border-cyan-400/20 bg-cyan-400/[0.06] p-5 sm:mb-8 sm:p-6">
           <div className="grid gap-5 sm:grid-cols-2 sm:gap-8">
