@@ -677,45 +677,47 @@ export default function VdotCalculator() {
         </div>
       )}
       <div className="mx-auto max-w-6xl px-4 pb-24 pt-6 sm:px-6 sm:pb-12 sm:pt-10">
-        <header className="mb-6 flex flex-col gap-5 sm:mb-8 sm:flex-row sm:items-end sm:justify-between">
-          <div className="w-full">
-            <div className="mb-3 flex items-start justify-between gap-3">
-              <div className="inline-flex items-center gap-2 rounded-full border border-cyan-400/20 bg-cyan-400/10 px-3 py-1.5 text-xs font-medium text-cyan-300 print:border-slate-300 print:bg-white print:text-slate-700 sm:text-sm">
-                <Activity size={16} /> HLM APP - Din hjælp til at løbe bedre
+        <div className="no-print sticky top-0 z-40 -mx-4 border-b border-white/10 bg-slate-950/85 px-4 pb-4 pt-4 backdrop-blur-md sm:-mx-6 sm:px-6">
+          <header className="mb-2 flex flex-col gap-5 sm:mb-3 sm:flex-row sm:items-end sm:justify-between">
+            <div className="w-full">
+              <div className="mb-3 flex items-start justify-between gap-3">
+                <div className="inline-flex items-center gap-2 rounded-full border border-cyan-400/20 bg-cyan-400/10 px-3 py-1.5 text-xs font-medium text-cyan-300 print:border-slate-300 print:bg-white print:text-slate-700 sm:text-sm">
+                  <Activity size={16} /> HLM APP - Din hjælp til at løbe bedre
+                </div>
+
+                <div className="no-print flex shrink-0 items-center gap-2 pt-1 sm:hidden">
+                  <button
+                    type="button"
+                    aria-label={mobileNavOpen ? "Luk navigation" : "Åbn navigation"}
+                    aria-expanded={mobileNavOpen}
+                    onClick={() => setMobileNavOpen((current) => !current)}
+                    className="inline-flex h-10 w-10 items-center justify-center rounded-xl border border-white/10 bg-white/[0.05] text-slate-200 transition hover:bg-white/10"
+                  >
+                    {mobileNavOpen ? <X size={17} /> : <Menu size={17} />}
+                  </button>
+
+                  <button
+                    type="button"
+                    aria-label="Udskriv side"
+                    onClick={() => { document.title = `${activePageLabel} · HLM App`; window.print(); }}
+                    className="inline-flex h-10 w-10 items-center justify-center rounded-xl border border-cyan-400/30 bg-cyan-400/10 text-cyan-200 transition hover:bg-cyan-400/20"
+                  >
+                    <Printer size={17} />
+                  </button>
+                </div>
               </div>
 
-              <div className="no-print flex shrink-0 items-center gap-2 pt-1 sm:hidden">
-                <button
-                  type="button"
-                  aria-label={mobileNavOpen ? "Luk navigation" : "Åbn navigation"}
-                  aria-expanded={mobileNavOpen}
-                  onClick={() => setMobileNavOpen((current) => !current)}
-                  className="inline-flex h-10 w-10 items-center justify-center rounded-xl border border-white/10 bg-white/[0.05] text-slate-200 transition hover:bg-white/10"
-                >
-                  {mobileNavOpen ? <X size={17} /> : <Menu size={17} />}
-                </button>
-
-                <button
-                  type="button"
-                  aria-label="Udskriv side"
-                  onClick={() => { document.title = `${activePageLabel} · HLM App`; window.print(); }}
-                  className="inline-flex h-10 w-10 items-center justify-center rounded-xl border border-cyan-400/30 bg-cyan-400/10 text-cyan-200 transition hover:bg-cyan-400/20"
-                >
-                  <Printer size={17} />
-                </button>
-              </div>
+              <h1 className="text-3xl font-black tracking-tight sm:text-5xl">{activePage === "vdot" ? "VDOT løbeberegner" : activePageLabel}</h1>
+              <p className="print-muted mt-3 max-w-2xl text-sm leading-6 text-slate-400 sm:text-base">
+                Beregn din aktuelle løbeform, forventede konkurrencetider og vejledende træningstempoer.
+              </p>
             </div>
 
-            <h1 className="text-3xl font-black tracking-tight sm:text-5xl">{activePage === "vdot" ? "VDOT løbeberegner" : activePageLabel}</h1>
-            <p className="print-muted mt-3 max-w-2xl text-sm leading-6 text-slate-400 sm:text-base">
-              Beregn din aktuelle løbeform, forventede konkurrencetider og vejledende træningstempoer.
-            </p>
-          </div>
-
-          <div className="no-print hidden w-full justify-end sm:flex sm:w-auto">
-            <button onClick={() => { document.title = `${activePageLabel} · HLM App`; window.print(); }} className="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl border border-cyan-400/30 bg-cyan-400/10 px-4 text-sm font-semibold text-cyan-200 transition hover:bg-cyan-400/20 sm:flex-none"><Printer size={17} /><span>{activePage === "vdot" ? "Udskriv VDOT" : `Udskriv ${activePageLabel}`}</span></button>
-          </div>
-        </header>
+            <div className="no-print hidden w-full justify-end sm:flex sm:w-auto">
+              <button onClick={() => { document.title = `${activePageLabel} · HLM App`; window.print(); }} className="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl border border-cyan-400/30 bg-cyan-400/10 px-4 text-sm font-semibold text-cyan-200 transition hover:bg-cyan-400/20 sm:flex-none"><Printer size={17} /><span>{activePage === "vdot" ? "Udskriv VDOT" : `Udskriv ${activePageLabel}`}</span></button>
+            </div>
+          </header>
+        </div>
 
         <nav aria-label="Hovednavigation" className={`${mobileNavOpen ? "flex" : "hidden"} no-print mb-6 mt-0 flex-col gap-2 rounded-2xl border border-white/10 bg-white/[0.045] p-2 sm:mb-8 sm:mt-0 sm:flex sm:grid sm:grid-cols-2 sm:gap-2 lg:grid-cols-5`}>
           {navigationSections.map((section) => {
