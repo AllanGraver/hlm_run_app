@@ -678,74 +678,85 @@ export default function VdotCalculator() {
       )}
       <div className="mx-auto max-w-6xl px-4 pb-24 pt-6 sm:px-6 sm:pb-12 sm:pt-10">
         <header className="mb-6 flex flex-col gap-5 sm:mb-8 sm:flex-row sm:items-end sm:justify-between">
-          <div>
-            <div className="mb-3 inline-flex items-center gap-2 rounded-full border border-cyan-400/20 bg-cyan-400/10 px-3 py-1.5 text-xs font-medium text-cyan-300 print:border-slate-300 print:bg-white print:text-slate-700 sm:text-sm">
-              <Activity size={16} /> HLM APP - Din hjælp til at løbe bedre
+          <div className="w-full">
+            <div className="mb-3 flex items-start justify-between gap-3">
+              <div className="inline-flex items-center gap-2 rounded-full border border-cyan-400/20 bg-cyan-400/10 px-3 py-1.5 text-xs font-medium text-cyan-300 print:border-slate-300 print:bg-white print:text-slate-700 sm:text-sm">
+                <Activity size={16} /> HLM APP - Din hjælp til at løbe bedre
+              </div>
+
+              <div className="no-print flex shrink-0 items-center gap-2 pt-1 sm:hidden">
+                <button
+                  type="button"
+                  aria-label={mobileNavOpen ? "Luk navigation" : "Åbn navigation"}
+                  aria-expanded={mobileNavOpen}
+                  onClick={() => setMobileNavOpen((current) => !current)}
+                  className="inline-flex h-10 w-10 items-center justify-center rounded-xl border border-white/10 bg-white/[0.05] text-slate-200 transition hover:bg-white/10"
+                >
+                  {mobileNavOpen ? <X size={17} /> : <Menu size={17} />}
+                </button>
+
+                <button
+                  type="button"
+                  aria-label="Udskriv side"
+                  onClick={() => { document.title = `${activePageLabel} · HLM App`; window.print(); }}
+                  className="inline-flex h-10 w-10 items-center justify-center rounded-xl border border-cyan-400/30 bg-cyan-400/10 text-cyan-200 transition hover:bg-cyan-400/20"
+                >
+                  <Printer size={17} />
+                </button>
+              </div>
             </div>
+
             <h1 className="text-3xl font-black tracking-tight sm:text-5xl">{activePage === "vdot" ? "VDOT løbeberegner" : activePageLabel}</h1>
             <p className="print-muted mt-3 max-w-2xl text-sm leading-6 text-slate-400 sm:text-base">
               Beregn din aktuelle løbeform, forventede konkurrencetider og vejledende træningstempoer.
             </p>
           </div>
-          <div className="no-print flex w-full justify-end sm:w-auto">
+
+          <div className="no-print hidden w-full justify-end sm:flex sm:w-auto">
             <button onClick={() => { document.title = `${activePageLabel} · HLM App`; window.print(); }} className="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl border border-cyan-400/30 bg-cyan-400/10 px-4 text-sm font-semibold text-cyan-200 transition hover:bg-cyan-400/20 sm:flex-none"><Printer size={17} /><span>{activePage === "vdot" ? "Udskriv VDOT" : `Udskriv ${activePageLabel}`}</span></button>
           </div>
         </header>
 
-        <div className="no-print mb-6 sm:mb-8">
-          <div className="flex justify-end sm:hidden">
-            <button
-              type="button"
-              aria-label={mobileNavOpen ? "Luk navigation" : "Åbn navigation"}
-              aria-expanded={mobileNavOpen}
-              onClick={() => setMobileNavOpen((current) => !current)}
-              className="inline-flex h-11 w-11 items-center justify-center rounded-xl border border-white/10 bg-white/[0.05] text-slate-200 transition hover:bg-white/10"
-            >
-              {mobileNavOpen ? <X size={18} /> : <Menu size={18} />}
-            </button>
-          </div>
+        <nav aria-label="Hovednavigation" className={`${mobileNavOpen ? "flex" : "hidden"} no-print mb-6 mt-0 flex-col gap-2 rounded-2xl border border-white/10 bg-white/[0.045] p-2 sm:mb-8 sm:mt-0 sm:flex sm:grid sm:grid-cols-2 sm:gap-2 lg:grid-cols-5`}>
+          {navigationSections.map((section) => {
+            const SectionIcon = section.icon;
+            const isActive = section.pages.some((page) => page.key === activePage);
+            const isExpanded = expandedSection === section.label;
+            const shouldShowItems = isExpanded || !mobileNavOpen;
 
-          <nav aria-label="Hovednavigation" className={`${mobileNavOpen ? "flex" : "hidden"} mt-3 flex-col gap-2 rounded-2xl border border-white/10 bg-white/[0.045] p-2 sm:mt-0 sm:flex sm:grid sm:grid-cols-2 sm:gap-2 lg:grid-cols-5`}>
-            {navigationSections.map((section) => {
-              const SectionIcon = section.icon;
-              const isActive = section.pages.some((page) => page.key === activePage);
-              const isExpanded = expandedSection === section.label;
-              const shouldShowItems = isExpanded || !mobileNavOpen;
+            return (
+              <div key={section.label} className="group relative rounded-xl border border-white/10 bg-slate-950/40 p-1.5">
+                <button
+                  type="button"
+                  aria-haspopup="true"
+                  aria-expanded={isExpanded}
+                  onClick={() => setExpandedSection((current) => current === section.label ? null : section.label)}
+                  className={`flex min-h-11 w-full items-center justify-between gap-2 rounded-lg px-3 text-left text-sm font-semibold transition ${isActive ? "bg-cyan-400 text-slate-950" : "text-slate-400 hover:bg-white/10 hover:text-white"}`}
+                >
+                  <span className="inline-flex items-center gap-2"><SectionIcon size={16} /> {section.label}</span>
+                  <ChevronDown className={`shrink-0 transition ${isExpanded ? "rotate-180" : ""}`} size={16} />
+                </button>
 
-              return (
-                <div key={section.label} className="group relative rounded-xl border border-white/10 bg-slate-950/40 p-1.5">
-                  <button
-                    type="button"
-                    aria-haspopup="true"
-                    aria-expanded={isExpanded}
-                    onClick={() => setExpandedSection((current) => current === section.label ? null : section.label)}
-                    className={`flex min-h-11 w-full items-center justify-between gap-2 rounded-lg px-3 text-left text-sm font-semibold transition ${isActive ? "bg-cyan-400 text-slate-950" : "text-slate-400 hover:bg-white/10 hover:text-white"}`}
-                  >
-                    <span className="inline-flex items-center gap-2"><SectionIcon size={16} /> {section.label}</span>
-                    <ChevronDown className={`shrink-0 transition ${isExpanded ? "rotate-180" : ""}`} size={16} />
-                  </button>
-
-                  <div className={`${shouldShowItems ? "block" : "hidden"} mt-2 space-y-1 sm:block`}>
-                    {section.pages.map((page) => (
-                      <button
-                        key={page.key}
-                        onClick={() => {
-                          setActivePage(page.key);
-                          setExpandedSection(null);
-                          setMobileNavOpen(false);
-                        }}
-                        aria-current={activePage === page.key ? "page" : undefined}
-                        className={`flex min-h-10 w-full items-center rounded-lg px-3 text-left text-sm transition ${activePage === page.key ? "bg-cyan-400/10 text-cyan-300" : "text-slate-300 hover:bg-white/10 hover:text-white"}`}
-                      >
-                        {page.label}
-                      </button>
-                    ))}
-                  </div>
+                <div className={`${shouldShowItems ? "block" : "hidden"} mt-2 space-y-1 sm:block`}>
+                  {section.pages.map((page) => (
+                    <button
+                      key={page.key}
+                      onClick={() => {
+                        setActivePage(page.key);
+                        setExpandedSection(null);
+                        setMobileNavOpen(false);
+                      }}
+                      aria-current={activePage === page.key ? "page" : undefined}
+                      className={`flex min-h-10 w-full items-center rounded-lg px-3 text-left text-sm transition ${activePage === page.key ? "bg-cyan-400/10 text-cyan-300" : "text-slate-300 hover:bg-white/10 hover:text-white"}`}
+                    >
+                      {page.label}
+                    </button>
+                  ))}
                 </div>
-              );
-            })}
-          </nav>
-        </div>
+              </div>
+            );
+          })}
+        </nav>
 
         <section className="mb-6 rounded-3xl border border-cyan-400/20 bg-cyan-400/[0.06] p-5 sm:mb-8 sm:p-6">
           <div className="grid gap-5 sm:grid-cols-2 sm:gap-8">
