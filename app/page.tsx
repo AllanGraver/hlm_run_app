@@ -75,7 +75,7 @@ type PageKey = "home" | "vdot" | "vo2max" | "training-load" | "recovery" | "race
 type NavigationPage = { key: PageKey; label: string };
 
 const navigationSections: Array<{ label: string; icon: typeof Gauge; pages: NavigationPage[] }> = [
-  { label: "Oversigt", icon: Activity, pages: [{ key: "home", label: "Startside" }] },
+  { label: "Oversigt", icon: Activity, pages: [{ key: "home", label: "Oversigt" }] },
   { label: "Performance", icon: Gauge, pages: [{ key: "vdot", label: "VDOT" }, { key: "vo2max", label: "VO₂max" }] },
   { label: "Træning", icon: Activity, pages: [{ key: "training-load", label: "Træningsbelastning" }, { key: "recovery", label: "Restitution" }] },
   { label: "Konkurrence", icon: Trophy, pages: [{ key: "race-strategy", label: "Løbsstrategi" }, { key: "energy-strategy", label: "Energistrategi" }, { key: "checklists", label: "Checklister" }] },
@@ -726,35 +726,47 @@ export default function VdotCalculator() {
             const isExpanded = expandedSection === section.label;
             const shouldShowItems = isExpanded || !mobileNavOpen;
 
+            const isOverviewSection = section.label === "Oversigt";
+
             return (
               <div key={section.label} className="group relative rounded-xl border border-white/10 bg-slate-950/40 p-1.5">
                 <button
                   type="button"
-                  aria-haspopup="true"
-                  aria-expanded={isExpanded}
-                  onClick={() => setExpandedSection((current) => current === section.label ? null : section.label)}
+                  aria-haspopup={isOverviewSection ? undefined : "true"}
+                  aria-expanded={isOverviewSection ? undefined : isExpanded}
+                  onClick={() => {
+                    if (isOverviewSection) {
+                      setActivePage("home");
+                      setExpandedSection(null);
+                      setMobileNavOpen(false);
+                      return;
+                    }
+                    setExpandedSection((current) => current === section.label ? null : section.label);
+                  }}
                   className={`flex min-h-11 w-full items-center justify-between gap-2 rounded-lg px-3 text-left text-sm font-semibold transition ${isActive ? "bg-cyan-400 text-slate-950" : "text-slate-400 hover:bg-white/10 hover:text-white"}`}
                 >
                   <span className="inline-flex items-center gap-2"><SectionIcon size={16} /> {section.label}</span>
-                  <ChevronDown className={`shrink-0 transition ${isExpanded ? "rotate-180" : ""}`} size={16} />
+                  {!isOverviewSection && <ChevronDown className={`shrink-0 transition ${isExpanded ? "rotate-180" : ""}`} size={16} />}
                 </button>
 
-                <div className={`${shouldShowItems ? "block" : "hidden"} mt-2 space-y-1 sm:block`}>
-                  {section.pages.map((page) => (
-                    <button
-                      key={page.key}
-                      onClick={() => {
-                        setActivePage(page.key);
-                        setExpandedSection(null);
-                        setMobileNavOpen(false);
-                      }}
-                      aria-current={activePage === page.key ? "page" : undefined}
-                      className={`flex min-h-10 w-full items-center rounded-lg px-3 text-left text-sm transition ${activePage === page.key ? "bg-cyan-400/10 text-cyan-300" : "text-slate-300 hover:bg-white/10 hover:text-white"}`}
-                    >
-                      {page.label}
-                    </button>
-                  ))}
-                </div>
+                {!isOverviewSection && (
+                  <div className={`${shouldShowItems ? "block" : "hidden"} mt-2 space-y-1 sm:block`}>
+                    {section.pages.map((page) => (
+                      <button
+                        key={page.key}
+                        onClick={() => {
+                          setActivePage(page.key);
+                          setExpandedSection(null);
+                          setMobileNavOpen(false);
+                        }}
+                        aria-current={activePage === page.key ? "page" : undefined}
+                        className={`flex min-h-10 w-full items-center rounded-lg px-3 text-left text-sm transition ${activePage === page.key ? "bg-cyan-400/10 text-cyan-300" : "text-slate-300 hover:bg-white/10 hover:text-white"}`}
+                      >
+                        {page.label}
+                      </button>
+                    ))}
+                  </div>
+                )}
               </div>
             );
           })}
