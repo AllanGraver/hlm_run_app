@@ -354,27 +354,85 @@ export default function VdotCalculator() {
     window.setTimeout(() => setNotice(""), 2600);
   };
 
-  const getExportSummary = () => {
+  const getPageExportMeta = () => {
     switch (activePage) {
+      case "home":
+        return {
+          title: "Startside",
+          subtitle: "Overblik over HLM-appens værktøjer",
+          summary: "HLM App · Oversigt over løbefunktioner",
+          primary: "Startside",
+          secondary: "Vælg den funktion, du vil bruge",
+        };
       case "vo2max":
-        return `VO₂max ${Number.isFinite(vo2max) ? vo2max.toFixed(1) : "–"} ml/kg/min · ${vo2Method === "cooper" ? "Cooper-test" : "Pulsestimat"}`;
+        return {
+          title: "VO₂max",
+          subtitle: `${vo2Method === "cooper" ? "Cooper-test" : "Pulsestimat"}`,
+          summary: `VO₂max ${Number.isFinite(vo2max) ? vo2max.toFixed(1) : "–"} ml/kg/min · ${vo2Method === "cooper" ? "Cooper-test" : "Pulsestimat"}`,
+          primary: Number.isFinite(vo2max) ? `${vo2max.toFixed(1)} ml/kg/min` : "–",
+          secondary: vo2Category,
+        };
       case "training-load":
-        return `Træningsbelastning ${trainingLoad} point · ${loadLevel.label}`;
+        return {
+          title: "Træningsbelastning",
+          subtitle: `${loadActivity} · ${loadDuration} min · RPE ${loadRpe}/10`,
+          summary: `Træningsbelastning ${trainingLoad} point · ${loadLevel.label}`,
+          primary: `${trainingLoad} point`,
+          secondary: loadLevel.label,
+        };
       case "recovery":
-        return `Restitution ${Math.round(recoveryHours)} timer · ${recoveryIntensityData.label}`;
+        return {
+          title: "Restitution",
+          subtitle: `${recoveryIntensityData.label} · ${recoverySleep} t søvn`,
+          summary: `Restitution ${Math.round(recoveryHours)} timer · ${recoveryIntensityData.label}`,
+          primary: `${Math.round(recoveryHours)} timer`,
+          secondary: recoveryAdvice(recoveryHours),
+        };
       case "race-strategy":
-        return `Løbsstrategi ${strategyProfileData.label} · ${strategyCalculated ? formatTime(strategyAdjustedMinutes) : "–"}`;
+        return {
+          title: "Løbsstrategi",
+          subtitle: `${strategyProfileData.label} · ${strategyDistance} km`,
+          summary: `Løbsstrategi ${strategyProfileData.label} · ${strategyCalculated ? formatTime(strategyAdjustedMinutes) : "–"}`,
+          primary: strategyCalculated ? formatTime(strategyAdjustedMinutes) : "–",
+          secondary: strategyProfileData.label,
+        };
       case "energy-strategy":
-        return `Energistrategi ${Math.round(energyCarbGrams)} g carbs · ${energyWater} ml væske`;
+        return {
+          title: "Energistrategi",
+          subtitle: `${energyDistance} km · ${energyHours}t ${energyMinutes}m`,
+          summary: `Energistrategi ${Math.round(energyCarbGrams)} g carbs · ${energyWater} ml væske`,
+          primary: `${Math.round(energyCarbGrams)} g kulhydrat`,
+          secondary: `${energyWater} ml væske · ${energySalt} mg salt`,
+        };
       case "checklists":
-        return `Løbscheckliste ${Math.round(checklistScore)}/100 · ${checklistStatus.label}`;
+        return {
+          title: "Løbscheckliste",
+          subtitle: `${Math.round(checklistScore)}/100 · ${checklistStatus.label}`,
+          summary: `Løbscheckliste ${Math.round(checklistScore)}/100 · ${checklistStatus.label}`,
+          primary: `${Math.round(checklistScore)}/100`,
+          secondary: checklistStatus.label,
+        };
       case "exercises":
-        return `Øvelsesbibliotek · ${runningDrills.length} drills`;
+        return {
+          title: "Øvelsesbibliotek",
+          subtitle: `${runningDrills.length} øvelser og workouts`,
+          summary: `Øvelsesbibliotek · ${runningDrills.length} drills`,
+          primary: `${runningDrills.length} drills`,
+          secondary: "Teknik, styrke og opvarmning",
+        };
       case "vdot":
       default:
-        return `VDOT ${calculated && valid ? vdot.toFixed(1) : "–"} · ${selectedRace?.name ?? "Løbsdistance"}`;
+        return {
+          title: "VDOT",
+          subtitle: `${selectedRace?.name ?? "Løbsdistance"} · ${valid ? formatTime(totalMinutes) : "–"}`,
+          summary: `VDOT ${calculated && valid ? vdot.toFixed(1) : "–"} · ${selectedRace?.name ?? "Løbsdistance"}`,
+          primary: calculated && valid ? `${vdot.toFixed(1)} VDOT` : "–",
+          secondary: valid ? `${formatPace(totalMinutes / distance)} min/km` : "Udfyld tid",
+        };
     }
   };
+
+  const getExportSummary = () => getPageExportMeta().summary;
 
 
   const reset = () => {
@@ -423,6 +481,7 @@ export default function VdotCalculator() {
       label: activePageLabel,
       savedAt: new Date().toISOString(),
       summary: getExportSummary(),
+      meta: getPageExportMeta(),
     };
 
     const allSavedPages = JSON.parse(localStorage.getItem("hlm-page-snapshots") || "{}");
@@ -447,6 +506,8 @@ export default function VdotCalculator() {
   };
 
   const downloadImage = () => {
+    const meta = getPageExportMeta();
+
     if (activePage === "vdot") {
       if (!calculated || !valid || !selectedRace) return;
       const canvas = document.createElement("canvas");
@@ -542,12 +603,11 @@ export default function VdotCalculator() {
     ctx.fillText(activePageLabel, 110, 190);
     ctx.fillStyle = "#cbd5e1";
     ctx.font = "24px Arial";
-    const summary = getExportSummary();
-    ctx.fillText(summary, 110, 250);
+    ctx.fillText(meta.summary, 110, 250);
 
     const cards = [
-      { label: "Status", value: activePage === "checklists" ? `${Math.round(checklistScore)}/100` : activePage === "energy-strategy" ? `${Math.round(energyCarbGrams)} g` : activePage === "training-load" ? `${trainingLoad} point` : activePage === "recovery" ? `${Math.round(recoveryHours)} timer` : activePage === "race-strategy" ? formatTime(strategyAdjustedMinutes) : activePage === "vo2max" ? `${vo2max.toFixed(1)} ml/kg/min` : "–" },
-      { label: "Detaljer", value: activePage === "training-load" ? `${loadActivity} · ${loadDuration} min` : activePage === "recovery" ? `${recoveryIntensityData.label}` : activePage === "race-strategy" ? strategyProfileData.label : activePage === "energy-strategy" ? `${energyWater} ml væske` : activePage === "checklists" ? `${checklistTotal} punkter` : "N/A" },
+      { label: "Primær værdi", value: meta.primary },
+      { label: "Detaljer", value: meta.secondary },
     ];
 
     cards.forEach((card, index) => {
@@ -567,13 +627,13 @@ export default function VdotCalculator() {
 
     ctx.fillStyle = "#64748b";
     ctx.font = "19px Arial";
-    ctx.fillText(`${new Date().toLocaleDateString("da-DK")}  ·  ${activePageLabel}`, 110, 760);
+    ctx.fillText(`${new Date().toLocaleDateString("da-DK")}  ·  ${meta.title}`, 110, 760);
 
     const link = document.createElement("a");
     link.download = `${activePageLabel.toLowerCase().replaceAll(/[^a-z0-9]+/g, "-")}.png`;
     link.href = canvas.toDataURL("image/png");
     link.click();
-    flash("Denne side er downloadet som PNG");
+    flash(`Denne ${meta.title.toLowerCase()} er downloadet som PNG`);
   };
 
   return (
@@ -596,9 +656,9 @@ export default function VdotCalculator() {
             </p>
           </div>
           <div className="no-print flex w-full flex-wrap gap-2 sm:w-auto sm:flex">
-            <button onClick={saveCurrentPage} className="inline-flex min-h-11 flex-1 items-center justify-center gap-2 rounded-xl border border-white/10 bg-white/5 px-3 text-sm font-semibold transition hover:bg-white/10 sm:flex-none"><Save size={17} /><span className="hidden sm:inline">Gem</span></button>
-            <button onClick={downloadImage} className="inline-flex min-h-11 flex-1 items-center justify-center gap-2 rounded-xl border border-white/10 bg-white/5 px-3 text-sm font-semibold transition hover:bg-white/10 sm:flex-none"><Download size={17} /><span className="hidden sm:inline">Billede</span></button>
-            <button onClick={() => window.print()} className="inline-flex min-h-11 flex-1 items-center justify-center gap-2 rounded-xl border border-white/10 bg-white/5 px-3 text-sm font-semibold transition hover:bg-white/10 sm:flex-none"><Printer size={17} /><span className="hidden sm:inline">Udskriv</span></button>
+            <button onClick={saveCurrentPage} className="inline-flex min-h-11 flex-1 items-center justify-center gap-2 rounded-xl border border-white/10 bg-white/5 px-3 text-sm font-semibold transition hover:bg-white/10 sm:flex-none"><Save size={17} /><span className="hidden sm:inline">{activePage === "vdot" ? "Gem VDOT" : activePage === "home" ? "Gem oversigt" : `Gem ${activePageLabel}`}</span></button>
+            <button onClick={downloadImage} className="inline-flex min-h-11 flex-1 items-center justify-center gap-2 rounded-xl border border-white/10 bg-white/5 px-3 text-sm font-semibold transition hover:bg-white/10 sm:flex-none"><Download size={17} /><span className="hidden sm:inline">{activePage === "vdot" ? "Billede VDOT" : `Billede ${activePageLabel}`}</span></button>
+            <button onClick={() => { document.title = `${activePageLabel} · HLM App`; window.print(); }} className="inline-flex min-h-11 flex-1 items-center justify-center gap-2 rounded-xl border border-white/10 bg-white/5 px-3 text-sm font-semibold transition hover:bg-white/10 sm:flex-none"><Printer size={17} /><span className="hidden sm:inline">{activePage === "vdot" ? "Udskriv VDOT" : `Udskriv ${activePageLabel}`}</span></button>
           </div>
         </header>
 
