@@ -408,9 +408,9 @@ export default function VdotCalculator() {
         return {
           title: "Løbscheckliste",
           subtitle: `${Math.round(checklistScore)}/100 · ${checklistStatus.label}`,
-          summary: `Løbscheckliste ${Math.round(checklistScore)}/100 · ${checklistStatus.label}`,
+          summary: `Løbscheckliste ${Math.round(checklistScore)}/100 · søvn ${checklistSleep}h · stress ${checklistStress}/10 · ømhed ${checklistSoreness}/10 · motivation ${checklistMotivation}/10`,
           primary: `${Math.round(checklistScore)}/100`,
-          secondary: checklistStatus.label,
+          secondary: `${checklistStatus.label} · søvn ${checklistSleep}h · stress ${checklistStress}/10 · ømhed ${checklistSoreness}/10`,
         };
       case "exercises":
         return {
