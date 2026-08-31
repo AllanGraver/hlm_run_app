@@ -690,25 +690,31 @@ export default function VdotCalculator() {
           </div>
         </header>
 
-        <nav aria-label="Hovednavigation" className="no-print mb-6 grid gap-2 rounded-2xl border border-white/10 bg-white/[0.045] p-2 sm:mb-8 sm:grid-cols-2 lg:grid-cols-4">
+        <nav aria-label="Hovednavigation" className="no-print mb-6 grid gap-2 rounded-2xl border border-white/10 bg-white/[0.045] p-2 sm:mb-8 sm:grid-cols-2 lg:grid-cols-5">
           {navigationSections.map((section) => {
             const SectionIcon = section.icon;
             const isActive = section.pages.some((page) => page.key === activePage);
-            const isExpanded = expandedSection === section.label;
-            return <div key={section.label} className="group relative">
-              <button
-                aria-haspopup="true"
-                aria-expanded={isExpanded}
-                onClick={() => setExpandedSection((current) => current === section.label ? null : section.label)}
-                className={`flex min-h-11 w-full items-center justify-between gap-2 rounded-xl px-4 text-left text-sm font-semibold transition ${isActive ? "bg-cyan-400 text-slate-950" : "text-slate-400 hover:bg-white/10 hover:text-white"}`}
-              >
-                <span className="inline-flex items-center gap-2"><SectionIcon size={17} /> {section.label}</span>
-                <ChevronDown className={`shrink-0 transition ${isExpanded ? "rotate-180" : ""} sm:group-hover:rotate-180`} size={16} />
-              </button>
-              <div className={`${isExpanded ? "block" : "hidden"} mt-1 rounded-xl border border-white/10 bg-slate-900 p-1 shadow-2xl transition sm:invisible sm:absolute sm:left-0 sm:right-0 sm:top-full sm:z-20 sm:mt-1 sm:block sm:opacity-0 sm:group-hover:visible sm:group-hover:opacity-100 sm:group-focus-within:visible sm:group-focus-within:opacity-100`}>
-                {section.pages.map((page) => <button key={page.key} onClick={() => { setActivePage(page.key); setExpandedSection(null); }} aria-current={activePage === page.key ? "page" : undefined} className={`flex min-h-10 w-full items-center rounded-lg px-3 text-left text-sm hover:bg-white/10 hover:text-white ${activePage === page.key ? "text-cyan-300" : "text-slate-300"}`}>{page.label}</button>)}
+
+            return (
+              <div key={section.label} className="rounded-xl border border-white/10 bg-slate-950/40 p-1.5">
+                <div className={`flex min-h-11 items-center gap-2 rounded-lg px-3 text-sm font-semibold ${isActive ? "bg-cyan-400 text-slate-950" : "text-slate-400"}`}>
+                  <SectionIcon size={16} />
+                  <span>{section.label}</span>
+                </div>
+                <div className="mt-2 space-y-1">
+                  {section.pages.map((page) => (
+                    <button
+                      key={page.key}
+                      onClick={() => setActivePage(page.key)}
+                      aria-current={activePage === page.key ? "page" : undefined}
+                      className={`flex min-h-10 w-full items-center rounded-lg px-3 text-left text-sm transition ${activePage === page.key ? "bg-cyan-400/10 text-cyan-300" : "text-slate-300 hover:bg-white/10 hover:text-white"}`}
+                    >
+                      {page.label}
+                    </button>
+                  ))}
+                </div>
               </div>
-            </div>;
+            );
           })}
         </nav>
 
