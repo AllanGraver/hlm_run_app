@@ -69,11 +69,12 @@ type SavedCalculation = {
   vdot: number;
 };
 
-type PageKey = "vdot" | "vo2max" | "training-load" | "recovery" | "race-strategy" | "energy-strategy" | "exercises" | "checklists";
+type PageKey = "home" | "vdot" | "vo2max" | "training-load" | "recovery" | "race-strategy" | "energy-strategy" | "exercises" | "checklists";
 
 type NavigationPage = { key: PageKey; label: string };
 
 const navigationSections: Array<{ label: string; icon: typeof Gauge; pages: NavigationPage[] }> = [
+  { label: "Oversigt", icon: Activity, pages: [{ key: "home", label: "Startside" }] },
   { label: "Performance", icon: Gauge, pages: [{ key: "vdot", label: "VDOT" }, { key: "vo2max", label: "VO₂max" }] },
   { label: "Træning", icon: Activity, pages: [{ key: "training-load", label: "Træningsbelastning" }, { key: "recovery", label: "Restitution" }] },
   { label: "Konkurrence", icon: Trophy, pages: [{ key: "race-strategy", label: "Løbsstrategi" }, { key: "energy-strategy", label: "Energistrategi" }, { key: "checklists", label: "Checklister" }] },
@@ -81,6 +82,7 @@ const navigationSections: Array<{ label: string; icon: typeof Gauge; pages: Navi
 ] as const;
 
 const pageExplanations: Record<PageKey, { result: string; benefit: string }> = {
+  home: { result: "Hvad kan jeg bruge denne app til?", benefit: "Her får du et hurtigt overblik over de vigtigste værktøjer i appen, så du kan vælge det, der passer til det træningstrin eller løb, du står i." },
   vdot: { result: "Hvor god er min nuværende form?", benefit: "Du får et samlet mål for din løbeform samt vejledende træningstempoer, så dine rolige ture, tærskelpas og intervaller kan planlægges mere præcist." },
   vo2max: { result: "Hvor effektivt kan min krop optage og bruge ilt?", benefit: "Du får et estimat af din aerobe kapacitet og kan følge, om din kondition udvikler sig over tid. Det er et træningsværktøj, ikke en klinisk måling." },
   "training-load": { result: "Træner jeg for hårdt eller for lidt?", benefit: "Du får et overblik over din samlede belastning, så du kan skabe progression uden at øge risikoen for overbelastning unødigt." },
@@ -208,7 +210,7 @@ const runningWorkouts = [
 ] as const;
 
 export default function VdotCalculator() {
-  const [activePage, setActivePage] = useState<PageKey>("vdot");
+  const [activePage, setActivePage] = useState<PageKey>("home");
   const [energyDistance, setEnergyDistance] = useState(21);
   const [energyHours, setEnergyHours] = useState(2);
   const [energyMinutes, setEnergyMinutes] = useState(0);
@@ -574,10 +576,10 @@ export default function VdotCalculator() {
   };
 
   return (
-    <main className="min-h-screen bg-slate-950 text-slate-100 selection:bg-cyan-300 selection:text-slate-950 print:bg-white print:text-black">
+    <main className="min-h-screen overflow-x-hidden bg-slate-950 text-slate-100 selection:bg-cyan-300 selection:text-slate-950 print:bg-white print:text-black">
       <style>{`@media print { @page { margin: 12mm; } .no-print { display: none !important; } .print-card { border: 1px solid #cbd5e1 !important; background: white !important; color: black !important; box-shadow: none !important; break-inside: avoid; } .print-muted { color: #475569 !important; } main { background: white !important; } }`}</style>
       {notice && (
-        <div role="status" className="no-print fixed left-1/2 top-4 z-50 flex -translate-x-1/2 items-center gap-2 whitespace-nowrap rounded-full border border-emerald-300/20 bg-emerald-950/95 px-4 py-2.5 text-sm font-medium text-emerald-200 shadow-2xl backdrop-blur">
+        <div role="status" className="no-print fixed left-1/2 top-4 z-50 flex -translate-x-1/2 items-center gap-2 whitespace-nowrap rounded-full border border-emerald-300/20 bg-emerald-950/95 px-4 py-2.5 text-sm font-medium text-emerald-200 shadow-2xl backdrop-blur max-sm:max-w-[calc(100vw-1.5rem)] max-sm:truncate">
           <CheckCircle2 size={17} /> {notice}
         </div>
       )}
@@ -592,14 +594,14 @@ export default function VdotCalculator() {
               Beregn din aktuelle løbeform, forventede konkurrencetider og vejledende træningstempoer.
             </p>
           </div>
-          <div className="no-print grid grid-cols-3 gap-2 sm:flex">
-            <button onClick={saveCurrentPage} className="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl border border-white/10 bg-white/5 px-3 text-sm font-semibold transition hover:bg-white/10"><Save size={17} /><span className="hidden sm:inline">Gem</span></button>
-            <button onClick={downloadImage} className="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl border border-white/10 bg-white/5 px-3 text-sm font-semibold transition hover:bg-white/10"><Download size={17} /><span className="hidden sm:inline">Billede</span></button>
-            <button onClick={() => window.print()} className="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl border border-white/10 bg-white/5 px-3 text-sm font-semibold transition hover:bg-white/10"><Printer size={17} /><span className="hidden sm:inline">Udskriv</span></button>
+          <div className="no-print flex w-full flex-wrap gap-2 sm:w-auto sm:flex">
+            <button onClick={saveCurrentPage} className="inline-flex min-h-11 flex-1 items-center justify-center gap-2 rounded-xl border border-white/10 bg-white/5 px-3 text-sm font-semibold transition hover:bg-white/10 sm:flex-none"><Save size={17} /><span className="hidden sm:inline">Gem</span></button>
+            <button onClick={downloadImage} className="inline-flex min-h-11 flex-1 items-center justify-center gap-2 rounded-xl border border-white/10 bg-white/5 px-3 text-sm font-semibold transition hover:bg-white/10 sm:flex-none"><Download size={17} /><span className="hidden sm:inline">Billede</span></button>
+            <button onClick={() => window.print()} className="inline-flex min-h-11 flex-1 items-center justify-center gap-2 rounded-xl border border-white/10 bg-white/5 px-3 text-sm font-semibold transition hover:bg-white/10 sm:flex-none"><Printer size={17} /><span className="hidden sm:inline">Udskriv</span></button>
           </div>
         </header>
 
-        <nav aria-label="Hovednavigation" className="no-print mb-6 grid gap-2 rounded-2xl border border-white/10 bg-white/[0.045] p-2 sm:grid-cols-2 lg:grid-cols-4 sm:mb-8">
+        <nav aria-label="Hovednavigation" className="no-print mb-6 grid gap-2 rounded-2xl border border-white/10 bg-white/[0.045] p-2 sm:mb-8 sm:grid-cols-2 lg:grid-cols-4">
           {navigationSections.map((section) => {
             const SectionIcon = section.icon;
             const isActive = section.pages.some((page) => page.key === activePage);
@@ -607,7 +609,7 @@ export default function VdotCalculator() {
               <button aria-haspopup="true" className={`flex min-h-11 w-full items-center justify-between gap-2 rounded-xl px-4 text-left text-sm font-semibold transition ${isActive ? "bg-cyan-400 text-slate-950" : "text-slate-400 hover:bg-white/10 hover:text-white"}`}>
                 <span className="inline-flex items-center gap-2"><SectionIcon size={17} /> {section.label}</span><ChevronDown size={16} />
               </button>
-              <div className="invisible absolute left-0 right-0 top-full z-20 mt-1 rounded-xl border border-white/10 bg-slate-900 p-1 opacity-0 shadow-2xl transition group-hover:visible group-hover:opacity-100 group-focus-within:visible group-focus-within:opacity-100">
+              <div className="mt-1 rounded-xl border border-white/10 bg-slate-900 p-1 shadow-2xl transition max-sm:mt-2 sm:invisible sm:absolute sm:left-0 sm:right-0 sm:top-full sm:z-20 sm:opacity-0 sm:group-hover:visible sm:group-hover:opacity-100 sm:group-focus-within:visible sm:group-focus-within:opacity-100">
                 {section.pages.map((page) => <button key={page.key} onClick={() => setActivePage(page.key)} aria-current={activePage === page.key ? "page" : undefined} className={`flex min-h-10 w-full items-center rounded-lg px-3 text-left text-sm hover:bg-white/10 hover:text-white ${activePage === page.key ? "text-cyan-300" : "text-slate-300"}`}>{page.label}</button>)}
               </div>
             </div>;
@@ -620,6 +622,64 @@ export default function VdotCalculator() {
             <div><p className="text-xs font-bold uppercase tracking-[0.16em] text-cyan-300">Hvad kan jeg bruge det til?</p><p className="mt-2 text-sm leading-6 text-slate-300">{pageExplanations[activePage].benefit}</p></div>
           </div>
         </section>
+
+        {activePage === "home" && (
+          <section className="space-y-6">
+            <div className="rounded-3xl border border-cyan-400/20 bg-gradient-to-br from-cyan-400/10 via-slate-950 to-slate-900 p-5 shadow-2xl sm:p-8">
+              <p className="text-xs font-bold uppercase tracking-[0.18em] text-cyan-300">Start her</p>
+              <h2 className="mt-3 text-3xl font-black tracking-tight sm:text-5xl">Få hurtigt et overblik over din træning</h2>
+              <p className="mt-4 max-w-3xl text-sm leading-7 text-slate-300 sm:text-base">
+                Her kan du se, hvad appen kan hjælpe dig med – fra at vurdere din løbeform til at planlægge din energi, restitution og løbsstrategi.
+                Hvis du er lidt i tvivl om, hvad du skal gøre, så start med den side, der passer til det spørgsmål, du har lige nu.
+              </p>
+              <div className="mt-6 flex flex-wrap gap-3">
+                <button onClick={() => setActivePage("vdot")} className="rounded-xl bg-cyan-400 px-4 py-3 text-sm font-bold text-slate-950 transition hover:bg-cyan-300">Start med VDOT</button>
+                <button onClick={() => setActivePage("training-load")} className="rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-sm font-semibold text-slate-200 transition hover:bg-white/10">Se træningsbelastning</button>
+              </div>
+            </div>
+
+            <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+              {[
+                { key: "vdot", title: "VDOT", text: "Find din aktuelle løbeform og få vejledende træningstempoer til alle zoner.", icon: Calculator },
+                { key: "vo2max", title: "VO₂max", text: "Se din aerobe kapacitet ud fra Cooper-test eller pulsestimat.", icon: Gauge },
+                { key: "training-load", title: "Træningsbelastning", text: "Vurder, om du træner for hårdt eller for lidt, og få bedre kontrol over belastningen.", icon: Activity },
+                { key: "recovery", title: "Restitution", text: "Find ud af, hvor lang tid du bør vente, før dit næste hårde løbe- eller kvalitetspas.", icon: Clock3 },
+                { key: "race-strategy", title: "Løbsstrategi", text: "Planlæg pacing, tempo og en realistisk rute gennem løbet.", icon: Trophy },
+                { key: "energy-strategy", title: "Energistrategi", text: "Få et praktisk bud på væske, salt og kulhydrater under længere løb.", icon: Sparkles },
+              ].map(({ key, title, text, icon: Icon }) => (
+                <button
+                  key={key}
+                  onClick={() => setActivePage(key as PageKey)}
+                  className="rounded-3xl border border-white/10 bg-white/[0.045] p-5 text-left transition hover:border-cyan-400/30 hover:bg-white/[0.06]"
+                >
+                  <div className="mb-4 inline-flex rounded-2xl bg-cyan-400/10 p-3 text-cyan-300">
+                    <Icon size={22} />
+                  </div>
+                  <h3 className="text-xl font-bold text-white">{title}</h3>
+                  <p className="mt-3 text-sm leading-6 text-slate-400">{text}</p>
+                </button>
+              ))}
+            </div>
+
+            <div className="rounded-3xl border border-white/10 bg-white/[0.045] p-5 sm:p-6">
+              <h3 className="text-xl font-bold">Sådan vælger du, hvad du skal bruge</h3>
+              <div className="mt-4 grid gap-4 md:grid-cols-3">
+                <div className="rounded-2xl border border-white/10 bg-slate-900/60 p-4">
+                  <p className="font-semibold text-cyan-300">Hvis du vil måle din form</p>
+                  <p className="mt-2 text-sm leading-6 text-slate-400">Gå til VDOT eller VO₂max.</p>
+                </div>
+                <div className="rounded-2xl border border-white/10 bg-slate-900/60 p-4">
+                  <p className="font-semibold text-cyan-300">Hvis du er usikker på træningen</p>
+                  <p className="mt-2 text-sm leading-6 text-slate-400">Start med træningsbelastning eller restitution.</p>
+                </div>
+                <div className="rounded-2xl border border-white/10 bg-slate-900/60 p-4">
+                  <p className="font-semibold text-cyan-300">Hvis du skal til løb</p>
+                  <p className="mt-2 text-sm leading-6 text-slate-400">Vælg løbsstrategi, energistrategi eller checklister.</p>
+                </div>
+              </div>
+            </div>
+          </section>
+        )}
 
         {activePage === "vo2max" && <>
           <section className="grid gap-4 lg:grid-cols-[0.88fr_1.12fr] lg:gap-6">
