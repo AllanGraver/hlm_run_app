@@ -668,7 +668,7 @@ export default function VdotCalculator() {
 
   return (
     <main className="min-h-screen overflow-x-hidden bg-slate-950 text-slate-100 selection:bg-cyan-300 selection:text-slate-950 print:bg-white print:text-black">
-      <style>{`@media print { @page { margin: 12mm; } .no-print { display: none !important; } .print-card { border: 1px solid #cbd5e1 !important; background: white !important; color: black !important; box-shadow: none !important; break-inside: avoid; } .print-muted { color: #475569 !important; } main { background: white !important; } }`}</style>
+      <style>{`@media print { @page { margin: 10mm; size: A4 portrait; } .no-print { display: none !important; } .print-card { border: 1px solid #cbd5e1 !important; background: white !important; color: black !important; box-shadow: none !important; break-inside: avoid; } .print-muted { color: #475569 !important; } main { background: white !important; } h1, h2, h3, p, span, div, button, li { color: #111827 !important; } .print-reading { font-size: 12pt !important; line-height: 1.5 !important; } .print-small { font-size: 10pt !important; line-height: 1.45 !important; } .print-grid { display: grid !important; grid-template-columns: 1fr 1fr !important; gap: 12px !important; } }`}</style>
       {notice && (
         <div role="status" className="no-print fixed left-1/2 top-4 z-50 flex -translate-x-1/2 items-center gap-2 whitespace-nowrap rounded-full border border-emerald-300/20 bg-emerald-950/95 px-4 py-2.5 text-sm font-medium text-emerald-200 shadow-2xl backdrop-blur max-sm:max-w-[calc(100vw-1.5rem)] max-sm:truncate">
           <CheckCircle2 size={17} /> {notice}
@@ -685,10 +685,8 @@ export default function VdotCalculator() {
               Beregn din aktuelle løbeform, forventede konkurrencetider og vejledende træningstempoer.
             </p>
           </div>
-          <div className="no-print flex w-full flex-wrap gap-2 sm:w-auto sm:flex">
-            <button onClick={saveCurrentPage} className="inline-flex min-h-11 flex-1 items-center justify-center gap-2 rounded-xl border border-white/10 bg-white/5 px-3 text-sm font-semibold transition hover:bg-white/10 sm:flex-none"><Save size={17} /><span className="hidden sm:inline">{activePage === "vdot" ? "Gem VDOT" : activePage === "home" ? "Gem oversigt" : `Gem ${activePageLabel}`}</span></button>
-            <button onClick={downloadImage} className="inline-flex min-h-11 flex-1 items-center justify-center gap-2 rounded-xl border border-white/10 bg-white/5 px-3 text-sm font-semibold transition hover:bg-white/10 sm:flex-none"><Download size={17} /><span className="hidden sm:inline">{activePage === "vdot" ? "Billede VDOT" : `Billede ${activePageLabel}`}</span></button>
-            <button onClick={() => { document.title = `${activePageLabel} · HLM App`; window.print(); }} className="inline-flex min-h-11 flex-1 items-center justify-center gap-2 rounded-xl border border-white/10 bg-white/5 px-3 text-sm font-semibold transition hover:bg-white/10 sm:flex-none"><Printer size={17} /><span className="hidden sm:inline">{activePage === "vdot" ? "Udskriv VDOT" : `Udskriv ${activePageLabel}`}</span></button>
+          <div className="no-print flex w-full justify-end sm:w-auto">
+            <button onClick={() => { document.title = `${activePageLabel} · HLM App`; window.print(); }} className="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl border border-cyan-400/30 bg-cyan-400/10 px-4 text-sm font-semibold text-cyan-200 transition hover:bg-cyan-400/20 sm:flex-none"><Printer size={17} /><span>{activePage === "vdot" ? "Udskriv VDOT" : `Udskriv ${activePageLabel}`}</span></button>
           </div>
         </header>
 
