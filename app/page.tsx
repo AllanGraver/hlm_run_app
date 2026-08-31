@@ -622,7 +622,37 @@ export default function VdotCalculator() {
       ctx.fillText(card.label, x + 22, y + 40);
       ctx.fillStyle = "#ffffff";
       ctx.font = "700 30px Arial";
-      ctx.fillText(card.value, x + 22, y + 90);
+      const value = card.value || "–";
+      const maxTextWidth = 250;
+      const clippedValue = value.length > 22 ? `${value.slice(0, 22)}…` : value;
+      ctx.fillText(clippedValue, x + 22, y + 90, maxTextWidth);
+    });
+
+    const detailLines = (() => {
+      switch (activePage) {
+        case "vo2max":
+          return [`Metode: ${vo2Method === "cooper" ? "Cooper-test" : "Pulsestimat"}`, `Alder: ${vo2Age}`, `Køn: ${vo2Sex === "men" ? "Mand" : "Kvinde"}`];
+        case "training-load":
+          return [`Aktivitet: ${loadActivity}`, `Varighed: ${loadDuration} min`, `RPE: ${loadRpe}/10`, `Mængde: ${load7Distance} km / 7d · ${load30Distance} km / 30d`];
+        case "recovery":
+          return [`Intensitet: ${recoveryIntensityData.label}`, `Søvn: ${recoverySleep} timer`, `Ømhed: ${recoverySoreness}/10`, `Næste pas: ${recoveryNextSession}`];
+        case "race-strategy":
+          return [`Dist.: ${strategyDistance} km`, `Mål: ${formatTime(strategyGoalMinutes)}`, `Terræn: ${strategyTerrain}`, `Temp.: ${strategyTemperature}`];
+        case "energy-strategy":
+          return [`Distance: ${energyDistance} km`, `Tid: ${formatTime(energyDuration * 60)}`, `Vægt: ${energyWeight} kg`, `Kulhydrat: ${Math.round(energyCarbGrams)} g`];
+        case "checklists":
+          return [`Søvn: ${checklistSleep} h`, `Stress: ${checklistStress}/10`, `Ømhed: ${checklistSoreness}/10`, `Motivation: ${checklistMotivation}/10`];
+        case "exercises":
+          return [`Drills: ${runningDrills.length}`, `Teknik: ${runningDrills[0]?.name ?? "Løbedrill"}`, `Workout: ${runningWorkouts[0]?.name ?? "Opvarmning"}`];
+        default:
+          return [`Distance: ${selectedRace?.name ?? "–"}`, `Tid: ${valid ? formatTime(totalMinutes) : "–"}`, `Pace: ${valid ? formatPace(totalMinutes / distance) : "–"}`];
+      }
+    })();
+
+    ctx.fillStyle = "#e2e8f0";
+    ctx.font = "18px Arial";
+    detailLines.forEach((line, index) => {
+      ctx.fillText(line, 110, 500 + index * 32);
     });
 
     ctx.fillStyle = "#64748b";
