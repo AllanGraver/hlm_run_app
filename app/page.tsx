@@ -677,7 +677,7 @@ export default function VdotCalculator() {
         </div>
       )}
       <div className="mx-auto max-w-6xl px-4 pb-24 pt-6 sm:px-6 sm:pb-12 sm:pt-10">
-        <div className="no-print sticky top-0 z-40 -mx-4 border-b border-white/10 bg-slate-950/85 px-4 pb-4 pt-4 backdrop-blur-md sm:-mx-6 sm:px-6">
+        <div className="no-print mobile-sticky-header -mx-4 border-b border-white/10 bg-slate-950/85 px-4 pb-4 pt-4 backdrop-blur-md sm:-mx-6 sm:px-6">
           <header className="mb-2 flex flex-col gap-5 sm:mb-3 sm:flex-row sm:items-end sm:justify-between">
             <div className="w-full">
               <div className="mb-3 flex items-start justify-between gap-3">
