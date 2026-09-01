@@ -79,7 +79,7 @@ const navigationSections: Array<{ label: string; icon: typeof Gauge; pages: Navi
   { label: "Performance", icon: Gauge, pages: [{ key: "vdot", label: "VDOT" }, { key: "vo2max", label: "VO₂max" }] },
   { label: "Træning", icon: Activity, pages: [{ key: "training-load", label: "Træningsbelastning" }, { key: "recovery", label: "Restitution" }] },
   { label: "Konkurrence", icon: Trophy, pages: [{ key: "race-strategy", label: "Løbsstrategi" }, { key: "energy-strategy", label: "Energistrategi" }, { key: "checklists", label: "Checklister" }] },
-  { label: "Øvelsesbibliotek", icon: Target, pages: [{ key: "exercises", label: "Øvelsesbibliotek" }] },
+  { label: "Værktøjskasse", icon: Target, pages: [{ key: "exercises", label: "Værktøjskasse" }] },
 ] as const;
 
 const pageExplanations: Record<PageKey, { result: string; benefit: string }> = {
