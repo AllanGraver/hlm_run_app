@@ -81,7 +81,7 @@ const navigationSections: Array<{ label: string; icon: typeof Gauge; pages: Navi
   { label: "Performance", icon: Gauge, pages: [{ key: "vdot", label: "VDOT" }, { key: "vo2max", label: "VO₂max" }] },
   { label: "Træning", icon: Activity, pages: [{ key: "warmup", label: "Opvarmning" }, { key: "running-technique", label: "Løbeteknik" }, { key: "training-load", label: "Træningsbelastning" }, { key: "recovery", label: "Restitution" }] },
   { label: "Konkurrence", icon: Trophy, pages: [{ key: "race-strategy", label: "Løbsstrategi" }, { key: "energy-strategy", label: "Energistrategi" }, { key: "checklists", label: "Checklister" }] },
-  { label: "Værktøjskasse", icon: Target, pages: [{ key: "vejrguide", label: "Vejrguide" }, { key: "injury-prevention", label: "Skadesforebyggelse" }, { key: "exercises", label: "Værktøjskasse" }] },
+  { label: "Værktøjskasse", icon: Target, pages: [{ key: "vejrguide", label: "Vejrguide" }, { key: "injury-prevention", label: "Skadesforebyggelse" }, { key: "nutrition", label: "Ernæringsguide" }] },
 ] as const;
 
 const pageExplanations: Record<PageKey, { result: string; benefit: string }> = {
