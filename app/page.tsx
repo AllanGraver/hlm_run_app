@@ -432,7 +432,7 @@ export default function VdotCalculator() {
       case "warmup":
         return {
           title: "Opvarmning",
-          subtitle: "Mobilitet, aktivering og løbespecifik förberedelse",
+          subtitle: "Mobilitet, aktivering og løbespecifik forberedelse",
           summary: "Opvarmning · 8–15 min · fokus på hurtig start, bedre teknik og lav risiko for stivhed",
           primary: "8–15 min",
           secondary: "Mobilitet + aktivering + løbespecifik fart",
@@ -1032,7 +1032,7 @@ export default function VdotCalculator() {
               <p className="text-xs font-bold uppercase tracking-[0.18em] text-cyan-300">Træning</p>
               <h2 className="mt-3 text-3xl font-black tracking-tight sm:text-5xl">Opvarmning</h2>
               <p className="mt-4 max-w-3xl text-sm leading-7 text-slate-300 sm:text-base">
-                En god opvarmning gør dig ikke kun varm – den aktiverer musklerne, øger blodgennemstrømningen og gør det lettere at løbe med bedre teknik og mere stabilitet. Det er især vigtigt at gøre det kort, konkret og dynamisk, så kroppen bliver klar uden at blive træt.
+                En god opvarmning gør dig ikke kun varm – den aktiverer musklerne, øger blodgennemstrømningen og gør det lettere at løbe med bedre teknik og mere stabilitet. Det er især vigtigt at gøre det kort, konkret og dynamisk, så kroppen bliver klar uden at blive træt. Dynamisk stræk er kontrollerede bevægelser gennem et bevægelsesområde - bensving, lunges, high knees. Statisk stræk er at holde en position i 15-60 sekunder.
               </p>
             </div>
 
