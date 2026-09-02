@@ -1,6 +1,8 @@
 "use client";
 
 import React, { useEffect, useMemo, useState } from "react";
+import Link from "next/link";
+import WeatherGuide from "./components/WeatherGuide";
 import {
   Activity,
   Calculator,
@@ -70,16 +72,16 @@ type SavedCalculation = {
   vdot: number;
 };
 
-type PageKey = "home" | "vdot" | "vo2max" | "training-load" | "recovery" | "race-strategy" | "energy-strategy" | "exercises" | "checklists";
+type PageKey = "home" | "vdot" | "vo2max" | "training-load" | "warmup" | "recovery" | "race-strategy" | "energy-strategy" | "exercises" | "vejrguide" | "running-technique" | "injury-prevention" | "checklists";
 
 type NavigationPage = { key: PageKey; label: string };
 
 const navigationSections: Array<{ label: string; icon: typeof Gauge; pages: NavigationPage[] }> = [
   { label: "Oversigt", icon: Activity, pages: [{ key: "home", label: "Oversigt" }] },
   { label: "Performance", icon: Gauge, pages: [{ key: "vdot", label: "VDOT" }, { key: "vo2max", label: "VO₂max" }] },
-  { label: "Træning", icon: Activity, pages: [{ key: "training-load", label: "Træningsbelastning" }, { key: "recovery", label: "Restitution" }] },
+  { label: "Træning", icon: Activity, pages: [{ key: "training-load", label: "Træningsbelastning" }, { key: "warmup", label: "Opvarmning" }, { key: "recovery", label: "Restitution" }, { key: "running-technique", label: "Løbeteknik" }] },
   { label: "Konkurrence", icon: Trophy, pages: [{ key: "race-strategy", label: "Løbsstrategi" }, { key: "energy-strategy", label: "Energistrategi" }, { key: "checklists", label: "Checklister" }] },
-  { label: "Værktøjskasse", icon: Target, pages: [{ key: "exercises", label: "Værktøjskasse" }] },
+  { label: "Værktøjskasse", icon: Target, pages: [{ key: "vejrguide", label: "Vejrguide" }, { key: "injury-prevention", label: "Skadesforebyggelse" }, { key: "exercises", label: "Værktøjskasse" }] },
 ] as const;
 
 const pageExplanations: Record<PageKey, { result: string; benefit: string }> = {
@@ -87,10 +89,14 @@ const pageExplanations: Record<PageKey, { result: string; benefit: string }> = {
   vdot: { result: "Hvor god er min nuværende form?", benefit: "Du får et samlet mål for din løbeform samt vejledende træningstempoer, så dine rolige ture, tærskelpas og intervaller kan planlægges mere præcist." },
   vo2max: { result: "Hvor effektivt kan min krop optage og bruge ilt?", benefit: "Du får et estimat af din aerobe kapacitet og kan følge, om din kondition udvikler sig over tid. Det er et træningsværktøj, ikke en klinisk måling." },
   "training-load": { result: "Træner jeg for hårdt eller for lidt?", benefit: "Du får et overblik over din samlede belastning, så du kan skabe progression uden at øge risikoen for overbelastning unødigt." },
+  warmup: { result: "Hvordan bliver jeg klar til at løbe godt?", benefit: "Du får en enkel, overskuelig opvarmning, der aktiverer kroppen, øger blodgennemstrømningen og gør dig bedre forberedt til at løbe med bedre teknik og fart." },
   recovery: { result: "Er jeg klar til næste hårde træningspas?", benefit: "Du får hjælp til at vurdere balancen mellem træning og hvile, så du kan vælge den rigtige intensitet på dagen." },
   "race-strategy": { result: "Hvordan fordeler jeg kræfterne i løbet?", benefit: "Du får hjælp til at vælge en realistisk åbning, holde den rigtige fart og disponere kræfterne hele vejen til mål." },
   "energy-strategy": { result: "Hvor meget energi, væske og salt bør jeg indtage?", benefit: "Du får en konkret plan for indtag under længere løb, så du kan øve strategien i træningen og møde konkurrencen bedre forberedt." },
   exercises: { result: "Hvilke øvelser kan jeg bruge i min træning?", benefit: "Du får inspiration til løbe- og styrkeøvelser, som kan gøre opvarmning, tekniktræning og kvalitetspas mere målrettede." },
+  vejrguide: { result: "Hvordan skal jeg klæde mig på til min løbetur?", benefit: "Du får et hurtigt overblik over det aktuelle vejr, vind og regn, så du kan vælge den rigtige løbebeklædning og undgå at blive for varm eller for kold." },
+  "running-technique": { result: "Hvordan løber jeg mere effektivt og med bedre teknik?", benefit: "Du får en enkel oversigt over de vigtigste løbeteknik-øvelser, så du kan forbedre rytme, fremdrift og kropskontrol uden at overbelaste kroppen." },
+  "injury-prevention": { result: "Hvordan undgår jeg de mest almindelige løbeskader?", benefit: "Du får en guide til de 10 mest kendte løbeskader, sådan at du kan genkende, behandle og forebygge dem gennem øvelser og indsigt." },
   checklists: { result: "Er jeg klar til løbet?", benefit: "Du får et hurtigt overblik over søvn, stress, ømhed og motivation samt praktiske checklister til før, under og efter konkurrencen." },
 };
 
@@ -208,6 +214,47 @@ const runningWorkouts = [
   { name: "Avanceret plyometri", level: "Øvet", duration: "12–18 min", purpose: "Arbejd med afsæt, stivhed og kraft, når du allerede tåler regelmæssig hoppetræning.", steps: ["Enbens-pogo · 2 x 10 pr. ben", "Bounds · 3 x 20 m", "Boks-hop · 3 x 5", "Stigningsløb · 4 x 60 m"] },
   { name: "Ankelstyrke", level: "Alle niveauer", duration: "8–10 min", purpose: "Styrk fødder, ankler og lægge for bedre stabilitet og robusthed i løbetræningen.", steps: ["Læghævninger med strakt knæ · 2 x 12", "Læghævninger med bøjet knæ · 2 x 12", "Tibialis-løft · 2 x 15", "Enbensbalance · 2 x 30 sek pr. ben"] },
   { name: "Agility-ladder plyometri", level: "Let øvet", duration: "10–14 min", purpose: "Øv hurtige fødder, timing og retningsskift med lav volumen og høj kvalitet.", steps: ["One-in · 2 gennemløb", "Two-in · 2 gennemløb", "In-in-out-out · 2 gennemløb", "Sideways quick steps · 2 gennemløb pr. side"] },
+] as const;
+
+const warmupBlocks = [
+  { title: "1. Bliv varm i kroppen", text: "Start med 5–8 minutter med rolig jogging, let gang eller løb i et behageligt tempo. Formålet er at hæve kroppstemperaturen og få blodet til at cirkulere til musklerne.", accent: "emerald" },
+  { title: "2. Aktiver lederne og musklerne", text: "Fokusér på bevægelser, der åbner hofter, ankler, skuldre og ryg. Dynamiske øvelser er bedre end langvarig statisk strækning, når du skal løbe godt og undgå at føle dig stiv.", accent: "cyan" },
+  { title: "3. Gør det løbespecifikt", text: "Tilføj korte, kontrollerede løbemed bevægelser såsom hælspark, knæløft, A-skips eller korte stigningstræk. Her skal du gradvist bygge op i fart, så kroppen bliver klar til det kommende tempo.", accent: "amber" },
+] as const;
+
+const warmupExercises = [
+  { name: "Gang med armcirkler", purpose: "Opvarmning af skuldre og torso", duration: "30–45 sek", how: "Gå fremad og sving armene i brede cirkler, først fremad, derefter bagud. Hold overkroppen afslappet og bevægelserne kontrollerede.", video: "https://www.youtube.com/results?search_query=arm+circles+running+warm+up" },
+  { name: "Ankling", purpose: "Aktivering af ankel og fod", duration: "2 x 20 m", how: "Løft fødderne op og land let under kroppen med en aktiv ankel. Fokusér på at lande med let bøjede knæ og små, kontrollerede skridt.", video: "https://www.youtube.com/results?search_query=ankling+running+drill" },
+  { name: "Høje knæløft", purpose: "Aktiverer hofte og benfrekvens", duration: "2 x 20 m", how: "Kør let fremad med høje knæløft og aktiv armbevægelse. Hold overkroppen oprejst og undgå at låse knæene.", video: "https://www.youtube.com/results?search_query=high+knee+running+drill" },
+  { name: "A-skip", purpose: "Skaber rytme og fremdrift", duration: "2 x 20 m", how: "Lav små, høje sving med den modsatte arm og fordel vægten på et let afsæt. Det skal blive af et lige, flydende løb, ikke en hoppende bevægelse.", video: "https://www.youtube.com/results?search_query=A+skip+running+drill" },
+  { name: "Hælspark", purpose: "Aktivering af bagkæde", duration: "2 x 20 m", how: "Kør fremad og spark hælen op mod bagdelen med korte, hurtige skridt. Kort kontakt med underlaget og lav hoftedriv skal stå i fokus.", video: "https://www.youtube.com/results?search_query=heel+kick+running+drill" },
+  { name: "Kort stigning eller strider", purpose: "Forberedelse til fart og løbeøkonomi", duration: "3–5 x 20–30 sek", how: "Kør korte strider eller lette stigninger med fokus på en stærk, men kontrolleret afsæt. Stop, før teknikken bliver unøjagtig eller tung.", video: "https://www.youtube.com/results?search_query=running+striders+warm+up" },
+] as const;
+
+const injuryPreventionGuides = [
+  { name: "Løberknæ (IT-band-syndrom)", symptoms: "Smerte på ydersiden af knæet, især ved længere løb og nedkørslinger.", treatment: "Hvil, massage, styrketræning af hoftemuskler, især abduktorer og ydre hoftemuskulatur.", frequency: "Daglig massage eller skumruller, styrkeøvelser 4–5 gange om ugen i 3–4 uger.", prevention: "Hold hofter stærke, stræk regelmæssigt, og undgå for meget ændring i løbemønster på kort tid.", video: "https://www.youtube.com/results?search_query=IT+band+syndrom+løb+behandling" },
+  { name: "Springerknæ (patellofemoral smertesyndrom)", symptoms: "Smerte omkring eller bagved knæskallen, især ved opstigning, nedgang eller efter løb.", treatment: "Hvil, is, styrketræning af lår og hoftemuskulatur, især vastus medialis og hofteabduktorer.", frequency: "Daglige hofteøvelser 3–4 gange om ugen, 2–4 uger restitution.", prevention: "Hold hofter og lår stærke, øg løbevolumen gradvist, vær opmærksom på løbeteknik og knæ-over-tå-regel.", video: "https://www.youtube.com/results?search_query=springerknæ+behandling+øvelser" },
+  { name: "Skinnebensbetændelse (shin splints)", symptoms: "Dumpende smerte langs forsiden af skinnebenet, især under eller efter løb.", treatment: "Hvil, is, kompression, og gradvis genoptræning med fokus på ankelstyrkelse.", frequency: "Hvil 2–6 uger, ankle-løft og tibia-styrke 3–4 gange om ugen.", prevention: "Undgå at forøge løbevolumen for hurtigt (max 10% pr. uge), brug passende sko, styrk ankler og læg.", video: "https://www.youtube.com/results?search_query=skinnebensbetændelse+shin+splints+behandling" },
+  { name: "Plantar fasciitis (svangsenebetændelse)", symptoms: "Stikkende smerte på fodsålen, især om morgenen eller efter længere løb og aktivitet.", treatment: "Hvil, is, udstrækning af lægge- og fodbuer, plantar fascia massage med bold.", frequency: "Daglige strækøvelser 2 gange dagligt, hvil 1–2 uger, derefter gradvis løb.", prevention: "Stræk regelmæssigt, styrk fodmuskulatur, brug indlægssål hvis nødvendigt, undgå for meget barfodseløb.", video: "https://www.youtube.com/results?search_query=plantar+fasciitis+svangsenebetændelse+behandling" },
+  { name: "Akillessenebetændelse", symptoms: "Smerte eller stivhed i Achilles-senen, især om morgenen eller efter løb, kan være akut eller kronisk.", treatment: "Hvil, is, ekscentriske lægøvelser (væsentlig for behandling), og gradvis genoptræning med øget volumen.", frequency: "Daglige ekscentriske øvelser 2–3 gange dagligt i 2–6 uger, professionel behandling kan være nødvendig.", prevention: "Stræk dagligt, styrk læggen regelmæssigt, øg træningsvolumen graduelt, varm ordentligt op.", video: "https://www.youtube.com/results?search_query=akillessenebetændelse+eccentric+exercises" },
+  { name: "Muskelkramper og fibersprængninger", symptoms: "Pludselig smerte, stivhed eller ubehag i muskulaturen, kan være mild spændthed eller alvorlig skade.", treatment: "Hvil, is første 48 timer, strækøvelser, kompression, og gradvis aktivering baseret på alvorlighed.", frequency: "Først hvil 2–7 dage, derefter daglig behandling 1–3 uger afhængigt af alvorlighed.", prevention: "Varm op grundigt før løb, stræk efter løb, drik nok vand, og øg træningsvolumen graduelt.", video: "https://www.youtube.com/results?search_query=muskelkramper+fibersprængninger+løb+behandling" },
+  { name: "Overbelastning af hasemusklen", symptoms: "Smerte i øverst bagside af lår ved hoften, især ved sprint eller opladning af muskel.", treatment: "Hvil, is, ekscentriske bagbindsøvelser, og gradvis genoptræning med fokus på belastning.", frequency: "Hvil 1–2 uger, derefter ekscentriske øvelser 4–5 gange om ugen i 4–6 uger.", prevention: "Stræk bagbind regelmæssigt, styrk ekscentrisk, varm op ordentligt, undgå pludselig intensitetstigning.", video: "https://www.youtube.com/results?search_query=hasemuskelbetændelse+overbelastning+behandling" },
+  { name: "Hofteleddebetændelse (hofteledgigt)", symptoms: "Dumpende smerte i eller omkring hoften, især ved løb eller efter aktivitet, kan være kronisk.", treatment: "Hvil, is, hoftetræning, især styrketræning af abduktorer og eksterne rotatorer, massage.", frequency: "Hvil 1–2 uger, derefter daglige hofteøvelser 4–5 gange om ugen i 3–4 uger.", prevention: "Styrk hoftemuskler regelmæssigt, varm op grundigt, undgå pludselig ændring i løbemønster.", video: "https://www.youtube.com/results?search_query=hofteleddebetændelse+hip+bursitis+behandling" },
+  { name: "Stress-fraktur", symptoms: "Gradvis øgende smerte på samme sted der ikke bliver bedre med hvil, kan være svær at røre ved.", treatment: "Medicinsk evaluering påkrævet; typisk 4–8 ugers hvil, derefter gradvis genoptræning under vejledning.", frequency: "Ingen eller meget let løb i initial fase, svømning og cykling, derefter gradvis løb over 4–8 uger.", prevention: "Øg træningsvolumen gradvist (ikke mere end 10% pr. uge), få nok kalcium og D-vitamin, vær opmærksom på overbelastning.", video: "https://www.youtube.com/results?search_query=stress+fracture+running+return+to+running" },
+  { name: "Ankelsmerter og stabilitet", symptoms: "Smerte ved anklen, følelse af ustabilitet, især ved sidelejringer eller teknisk krævende terræn.", treatment: "Hvil, is, stabiliseringsøvelser, proprioceptiv træning, og gradvis genoptræning.", frequency: "Stabiliseringsøvelser 4–5 gange om ugen i 2–4 uger, derefter vedligeholdelse.", prevention: "Styrk ankler og indre lårmuskel, træn balanse og proprioception, vær opmærksom på løbeteknik.", video: "https://www.youtube.com/results?search_query=ankelskade+løb+stabiliseringsøvelser" },
+] as const;
+
+const runningTechniqueExercises = [
+  { name: "Ankling", focus: "Højere fodplacering og bedre afsæt", how: "Stand på en enkelt fod og land let med fødderne under kroppen. Skub dig fremad og hold knæet let bøjet. Fokusér på at få en kort, hurtig kontakt med underlaget.", frequency: "2–3 sæt x 15–20 meter, 1–2 gange om ugen", video: "https://www.youtube.com/results?search_query=ankling+running+drills" },
+  { name: "Høje knæløft", focus: "Benaktivitet og løberytme", how: "Løb langsomt med korte skridt og løft knæet op mod hoften. Hold overkroppen oprejst og armene aktive, men afslappede.", frequency: "2–3 sæt x 20 m, 1–2 gange om ugen", video: "https://www.youtube.com/results?search_query=high+knee+running+drill" },
+  { name: "Hælspark", focus: "Bagkæde og hurtige fødder", how: "Spring fremad med korte, hurtige skridt og træk hælen hurtigt mod bagdelen. Hold springet lille og kontrolleret, så du ikke forlænger skridtet.", frequency: "2–3 sæt x 15–20 meter, 1–2 gange om ugen", video: "https://www.youtube.com/results?search_query=heel+to+butt+running+drill" },
+  { name: "A-skip", focus: "Koordination og arm/ben-timing", how: "Løb fremad med et aktivt knæløft og skub fra forfoden, mens du svinger armen modsat benet. Hold overkroppen lodret og fokusér på en jævn rytme.", frequency: "2–4 sæt x 20 m, 1–2 gange om ugen", video: "https://www.youtube.com/results?search_query=A+skip+running+drill" },
+  { name: "Fast feet", focus: "Fodfrequens og hurtige skridt", how: "Stå på stedet eller løb meget kort fremad med lille amplitude. Tænk hurtige fødder, korte skridt og let kropsvægten over midten.", frequency: "2–3 sæt x 10–15 sekunder, 1–2 gange om ugen", video: "https://www.youtube.com/results?search_query=fast+feet+running+drill" },
+  { name: "Straight-leg bounds", focus: "Fremdrift og elasticitet", how: "Hop fremad med næsten strakte ben og land let på forfoden. Lad kroppen glide frem og undgå at lande med store knæbøjninger.", frequency: "2–3 sæt x 10–20 m, 1–2 gange om ugen", video: "https://www.youtube.com/results?search_query=straight+leg+bounds+running" },
+  { name: "Skater hops", focus: "Stabilitet og kropskontrol", how: "Hop sideværts og land med et blødt knæ. Hold kroppen lige og land på den ene fod, så du styrker balance og kontrol i løbet.", frequency: "2–3 sæt x 6–8 spring pr. side, 1 gang om ugen", video: "https://www.youtube.com/results?search_query=skater+hops+running+drill" },
+  { name: "Lateral bounds", focus: "Sideværts styrke og kontrol", how: "Lav korte sidehop med roligt tempo og godt kropscenter. Land blødt og kom hurtigt videre til næste hop for at træne stabilitet.", frequency: "2–3 sæt x 6–8 spring pr. side, 1 gang om ugen", video: "https://www.youtube.com/results?search_query=lateral+bounds+running+drill" },
+  { name: "Stigningsløb", focus: "Kraft, teknik og løbeøkonomi", how: "Kør kortere stigninger med fokus på korte, stærke skridt og aktiv overkropp. Hold overkroppen oprejst og land med en let bøjning i knæet.", frequency: "4–6 x 30–60 m, 1–2 gange om ugen", video: "https://www.youtube.com/results?search_query=hill+running+technique+drill" },
+  { name: "March og glide", focus: "Kontrol af overkroppen og gangart", how: "Løb i en langsom, kontrolleret rytme og fokusér på at glide fremad med lille modstand. Åndedrættet skal være roligt, og armene skal bevæge sig harmonisk.", frequency: "3–5 min før hvert løb eller 1–2 gange om ugen", video: "https://www.youtube.com/results?search_query=running+march+drill+technique" },
 ] as const;
 
 export default function VdotCalculator() {
@@ -381,6 +428,14 @@ export default function VdotCalculator() {
           summary: `Træningsbelastning ${trainingLoad} point · ${loadLevel.label}`,
           primary: `${trainingLoad} point`,
           secondary: loadLevel.label,
+        };
+      case "warmup":
+        return {
+          title: "Opvarmning",
+          subtitle: "Mobilitet, aktivering og løbespecifik förberedelse",
+          summary: "Opvarmning · 8–15 min · fokus på hurtig start, bedre teknik og lav risiko for stivhed",
+          primary: "8–15 min",
+          secondary: "Mobilitet + aktivering + løbespecifik fart",
         };
       case "recovery":
         return {
@@ -791,6 +846,7 @@ export default function VdotCalculator() {
               <div className="mt-6 flex flex-wrap gap-3">
                 <button onClick={() => setActivePage("vdot")} className="rounded-xl bg-cyan-400 px-4 py-3 text-sm font-bold text-slate-950 transition hover:bg-cyan-300">Start med VDOT</button>
                 <button onClick={() => setActivePage("training-load")} className="rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-sm font-semibold text-slate-200 transition hover:bg-white/10">Se træningsbelastning</button>
+                <Link href="/vejrguide/" className="rounded-xl border border-amber-400/30 bg-amber-400/10 px-4 py-3 text-sm font-semibold text-amber-100 transition hover:bg-amber-400/20">Åbn vejrguide</Link>
               </div>
             </div>
 
@@ -970,6 +1026,163 @@ export default function VdotCalculator() {
           <section className="mt-6 rounded-3xl border border-white/10 bg-white/[0.045] p-4 sm:mt-8 sm:p-7"><h2 className="text-xl font-bold sm:text-2xl">Sådan bruger du resultatet</h2><p className="mt-2 max-w-3xl text-sm leading-6 text-slate-400">Belastningspoint beregnes som varighed ganget med oplevet anstrengelse (RPE). Brug tallet til at sammenligne dine egne pas over tid. Et enkelt højt tal er ikke et problem, men flere hårde pas i træk kræver ekstra restitution.</p><div className="mt-5 grid gap-3 sm:grid-cols-3"><div className="rounded-2xl border border-white/10 bg-slate-900/60 p-4"><p className="font-semibold text-emerald-300">Under 150</p><p className="mt-2 text-sm text-slate-400">Let pas eller restitution.</p></div><div className="rounded-2xl border border-white/10 bg-slate-900/60 p-4"><p className="font-semibold text-amber-300">150–299</p><p className="mt-2 text-sm text-slate-400">Moderat, normal træning.</p></div><div className="rounded-2xl border border-white/10 bg-slate-900/60 p-4"><p className="font-semibold text-rose-300">300+</p><p className="mt-2 text-sm text-slate-400">Hårdt pas, planlæg hvile.</p></div></div></section>
         </>}
 
+        {activePage === "warmup" && (
+          <section className="space-y-6">
+            <div className="rounded-3xl border border-cyan-400/20 bg-gradient-to-br from-cyan-400/10 via-slate-950 to-slate-900 p-5 shadow-2xl sm:p-8">
+              <p className="text-xs font-bold uppercase tracking-[0.18em] text-cyan-300">Træning</p>
+              <h2 className="mt-3 text-3xl font-black tracking-tight sm:text-5xl">Opvarmning</h2>
+              <p className="mt-4 max-w-3xl text-sm leading-7 text-slate-300 sm:text-base">
+                En god opvarmning gør dig ikke kun varm – den aktiverer musklerne, øger blodgennemstrømningen og gør det lettere at løbe med bedre teknik og mere stabilitet. Det er især vigtigt at gøre det kort, konkret og dynamisk, så kroppen bliver klar uden at blive træt.
+              </p>
+            </div>
+
+            <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+              <div className="rounded-2xl border border-white/10 bg-white/[0.045] p-4">
+                <p className="text-xs uppercase tracking-[0.16em] text-cyan-300">Tid</p>
+                <p className="mt-2 text-2xl font-black text-white">8–15</p>
+                <p className="mt-1 text-sm text-slate-400">minutter</p>
+              </div>
+              <div className="rounded-2xl border border-white/10 bg-white/[0.045] p-4">
+                <p className="text-xs uppercase tracking-[0.16em] text-cyan-300">Mål</p>
+                <p className="mt-2 text-2xl font-black text-white">Let</p>
+                <p className="mt-1 text-sm text-slate-400">og kontrolleret</p>
+              </div>
+              <div className="rounded-2xl border border-white/10 bg-white/[0.045] p-4">
+                <p className="text-xs uppercase tracking-[0.16em] text-cyan-300">Fokus</p>
+                <p className="mt-2 text-2xl font-black text-white">Mobilitet</p>
+                <p className="mt-1 text-sm text-slate-400">og aktivering</p>
+              </div>
+              <div className="rounded-2xl border border-white/10 bg-white/[0.045] p-4">
+                <p className="text-xs uppercase tracking-[0.16em] text-cyan-300">Bedst før</p>
+                <p className="mt-2 text-2xl font-black text-white">Løb</p>
+                <p className="mt-1 text-sm text-slate-400">eller hårdt pas</p>
+              </div>
+            </div>
+
+            <div className="rounded-3xl border border-white/10 bg-white/[0.045] p-4 sm:p-6">
+              <h3 className="text-xl font-bold text-white">Sådan bygger du en god opvarmning</h3>
+              <div className="mt-5 grid gap-4 lg:grid-cols-3">
+                {warmupBlocks.map((block) => (
+                  <div key={block.title} className="rounded-2xl border border-white/10 bg-slate-900/60 p-4">
+                    <p className="text-sm font-bold text-cyan-300">{block.title}</p>
+                    <p className="mt-3 text-sm leading-6 text-slate-300">{block.text}</p>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            <div className="rounded-3xl border border-white/10 bg-white/[0.045] p-4 sm:p-6">
+              <div className="flex flex-wrap items-end justify-between gap-3">
+                <div>
+                  <p className="text-xs font-bold uppercase tracking-[0.16em] text-cyan-300">Hvor lang tid?</p>
+                  <h3 className="mt-2 text-xl font-bold text-white">Opvarmningstid afhænger af løbstypen</h3>
+                </div>
+                <a
+                  href="https://www.youtube.com/results?search_query=running+warm+up+drills+for+beginners"
+                  target="_blank"
+                  rel="noreferrer"
+                  className="inline-flex items-center rounded-full border border-red-400/30 bg-red-500/10 px-3 py-1.5 text-xs font-semibold text-red-200 transition hover:bg-red-500/20"
+                >
+                  Se video på YouTube
+                </a>
+              </div>
+
+              <div className="mt-5 grid gap-3 md:grid-cols-2 xl:grid-cols-4">
+                <div className="rounded-2xl border border-emerald-400/20 bg-emerald-400/5 p-4">
+                  <p className="font-semibold text-emerald-300">Rolig tur</p>
+                  <p className="mt-2 text-2xl font-black text-white">5–8 min</p>
+                  <p className="mt-2 text-sm leading-6 text-slate-300">Start med 3–5 minutter rolig jogging. Det er helt normalt at holde det kort og let, hvis du kun skal ud og få kroppen i gang.</p>
+                </div>
+                <div className="rounded-2xl border border-cyan-400/20 bg-cyan-400/5 p-4">
+                  <p className="font-semibold text-cyan-300">Løbetur / 5 km</p>
+                  <p className="mt-2 text-2xl font-black text-white">8–12 min</p>
+                  <p className="mt-2 text-sm leading-6 text-slate-300">Her skal du være varm og let i benene, men stadig ikke træt. 2–3 minutter mobilitet og 3–4 minutter løbespecifikke bevægelser er ofte nok.</p>
+                </div>
+                <div className="rounded-2xl border border-amber-400/20 bg-amber-400/5 p-4">
+                  <p className="font-semibold text-amber-300">Tempo / interval</p>
+                  <p className="mt-2 text-2xl font-black text-white">10–15 min</p>
+                  <p className="mt-2 text-sm leading-6 text-slate-300">Før egentlige tempoer eller intervaller bør du tage lidt ekstra tid til at varme op, så du kan holde god teknik og undgå at starte for hårdt.</p>
+                </div>
+                <div className="rounded-2xl border border-violet-400/20 bg-violet-400/5 p-4">
+                  <p className="font-semibold text-violet-300">Konkurrence / længere løb</p>
+                  <p className="mt-2 text-2xl font-black text-white">12–20 min</p>
+                  <p className="mt-2 text-sm leading-6 text-slate-300">Hvis det er et løb eller en lang og hård session, er en lidt længere opvarmning med flere løbespecifikke bevægelser en god investering.</p>
+                </div>
+              </div>
+
+              <div className="mt-5 rounded-2xl border border-amber-400/20 bg-amber-400/10 p-4">
+                <p className="text-sm font-bold text-amber-100">Vigtigt for nye løbere</p>
+                <p className="mt-2 text-sm leading-6 text-amber-50">
+                  Mange nye løbere glemmer, at en god opvarmning ikke handler om at blive helt udmattet. Det handler om at få kroppen klar, så du kan løbe mere jævnt, med bedre teknik og mindre risiko for stivhed eller skader. Hvis du er ny, så start med 8–12 minutter og bygg gradvist op.
+                </p>
+              </div>
+
+              <div className="mt-5 grid gap-3 sm:grid-cols-2">
+                <div className="rounded-2xl border border-white/10 bg-slate-900/60 p-4">
+                  <p className="font-semibold text-emerald-300">1. 3–5 minutter</p>
+                  <p className="mt-2 text-sm leading-6 text-slate-300">Rolig jogging eller gå/løb i behageligt tempo. Du skal føle, at du bliver varmere, men ikke træt.</p>
+                </div>
+                <div className="rounded-2xl border border-white/10 bg-slate-900/60 p-4">
+                  <p className="font-semibold text-cyan-300">2. 3–5 minutter</p>
+                  <p className="mt-2 text-sm leading-6 text-slate-300">Dynamiske øvelser: ankling, høje knæløft, genopvarmning af ankler og hofter, gerne i en rolig men aktiv rytme.</p>
+                </div>
+                <div className="rounded-2xl border border-white/10 bg-slate-900/60 p-4">
+                  <p className="font-semibold text-amber-300">3. 2–5 minutter</p>
+                  <p className="mt-2 text-sm leading-6 text-slate-300">Løbespecifikke bevægelser: A-skip, hælspark eller 3–5 korte strider med fokus på teknik og gradvis fremdrift.</p>
+                </div>
+                <div className="rounded-2xl border border-white/10 bg-slate-900/60 p-4">
+                  <p className="font-semibold text-violet-300">4. Klar til løbet</p>
+                  <p className="mt-2 text-sm leading-6 text-slate-300">Du skal kunne mærke, at du er varm, let og klar til at tage første kilometer uden at føles stiv, tung eller usikker i løbeteknikken.</p>
+                </div>
+              </div>
+            </div>
+
+            <div className="grid gap-4 lg:grid-cols-2">
+              {warmupExercises.map((exercise) => (
+                <article key={exercise.name} className="rounded-3xl border border-white/10 bg-slate-900/60 p-5 shadow-xl shadow-slate-950/20">
+                  <div className="flex items-start justify-between gap-3">
+                    <div>
+                      <p className="text-xs font-bold uppercase tracking-[0.16em] text-cyan-300">Øvelse</p>
+                      <h3 className="mt-2 text-xl font-black text-white">{exercise.name}</h3>
+                    </div>
+                    <a
+                      href={exercise.video}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="inline-flex items-center rounded-full border border-red-400/30 bg-red-500/10 px-3 py-1.5 text-xs font-semibold text-red-200 transition hover:bg-red-500/20"
+                    >
+                      YouTube
+                    </a>
+                  </div>
+
+                  <div className="mt-4 rounded-2xl border border-cyan-400/20 bg-cyan-400/5 p-3">
+                    <p className="text-xs font-bold uppercase tracking-[0.14em] text-cyan-300">Formål</p>
+                    <p className="mt-2 text-sm leading-6 text-slate-200">{exercise.purpose}</p>
+                  </div>
+
+                  <div className="mt-4 space-y-3">
+                    <div>
+                      <p className="text-xs font-bold uppercase tracking-[0.14em] text-slate-400">Sådan gør du</p>
+                      <p className="mt-2 text-sm leading-6 text-slate-300">{exercise.how}</p>
+                    </div>
+                    <div>
+                      <p className="text-xs font-bold uppercase tracking-[0.14em] text-slate-400">Varighed</p>
+                      <p className="mt-2 text-sm font-medium text-white">{exercise.duration}</p>
+                    </div>
+                  </div>
+                </article>
+              ))}
+            </div>
+
+            <div className="rounded-3xl border border-amber-400/20 bg-amber-400/10 p-4 sm:p-6">
+              <p className="text-xs font-bold uppercase tracking-[0.16em] text-amber-200">Vigtig pointe</p>
+              <p className="mt-3 text-sm leading-7 text-amber-50 sm:text-base">
+                Den bedste opvarmning er kort, dynamisk og målrettet. Gå ikke i stå med lange statiske strækninger, hvis formålet er at få kroppen klar til løb. Fokusér i stedet på bevægelse, rytme og gradvis fremdrift.
+              </p>
+            </div>
+          </section>
+        )}
+
         {activePage === "recovery" && <>
           <section className="grid gap-4 lg:grid-cols-[0.88fr_1.12fr] lg:gap-6">
             <div className="no-print rounded-3xl border border-white/10 bg-white/[0.045] p-4 shadow-2xl sm:p-7">
@@ -1017,6 +1230,199 @@ export default function VdotCalculator() {
           </section>
           <section className="mt-6 rounded-3xl border border-white/10 bg-white/[0.045] p-4 sm:mt-8 sm:p-7"><div className="flex flex-wrap items-end justify-between gap-3"><div><h2 className="text-xl font-bold sm:text-2xl">Din løbscheckliste</h2><p className="mt-2 text-sm leading-6 text-slate-400">Brug listen som en rolig plan fra dagen før til timerne efter mål.</p></div><div className="flex items-center gap-3"><span className="text-sm font-semibold text-cyan-300">{checkedCount}/{checklistTotal} klaret</span><button onClick={() => setCheckedItems({})} className="rounded-lg border border-white/10 px-3 py-2 text-xs font-semibold text-slate-400 hover:bg-white/10 hover:text-white">Nulstil</button></div></div><div className="mt-5 h-2 overflow-hidden rounded-full bg-slate-900"><div className="h-full rounded-full bg-cyan-400 transition-all" style={{ width: `${checklistTotal ? checkedCount / checklistTotal * 100 : 0}%` }} /></div><div className="mt-6 grid gap-4 lg:grid-cols-2">{raceChecklistGroups.map((group) => <div key={group.title} className="rounded-2xl border border-white/10 bg-slate-900/60 p-4"><h3 className="font-semibold text-cyan-200">{group.title}</h3><div className="mt-3 space-y-2">{group.items.map((item) => { const itemKey = `${group.title}-${item}`; return <label key={itemKey} className="flex cursor-pointer items-start gap-3 rounded-xl p-2 text-sm leading-5 text-slate-300 transition hover:bg-white/5"><input type="checkbox" checked={Boolean(checkedItems[itemKey])} onChange={(event) => setCheckedItems((current) => ({ ...current, [itemKey]: event.target.checked }))} className="mt-1 h-4 w-4 shrink-0 accent-cyan-400" /><span className={checkedItems[itemKey] ? "text-slate-500 line-through" : ""}>{item}</span></label>; })}</div></div>)}</div></section>
         </>}
+
+        {activePage === "vejrguide" && (
+          <WeatherGuide />
+        )}
+
+        {activePage === "injury-prevention" && (
+          <section className="space-y-6">
+            <div className="rounded-3xl border border-cyan-400/20 bg-gradient-to-br from-cyan-400/10 via-slate-950 to-slate-900 p-5 shadow-2xl sm:p-8">
+              <p className="text-xs font-bold uppercase tracking-[0.18em] text-cyan-300">Værktøjskasse</p>
+              <h2 className="mt-3 text-3xl font-black tracking-tight sm:text-5xl">Skadesforebyggelse</h2>
+              <p className="mt-4 max-w-3xl text-sm leading-7 text-slate-300 sm:text-base">
+                De fleste løbeskader kan undgås gennem velovervejet progression, passende styrketræning og opmærksomhed på tidlige varselstegn. Denne guide viser dig de 10 mest almindelige skader og hvordan du både forebygger og behandler dem.
+              </p>
+            </div>
+
+            <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+              <div className="rounded-2xl border border-white/10 bg-white/[0.045] p-4">
+                <p className="text-xs uppercase tracking-[0.16em] text-cyan-300">Fokus</p>
+                <p className="mt-2 text-2xl font-black text-white">10</p>
+                <p className="mt-1 text-sm text-slate-400">mest kendte skader</p>
+              </div>
+              <div className="rounded-2xl border border-white/10 bg-white/[0.045] p-4">
+                <p className="text-xs uppercase tracking-[0.16em] text-cyan-300">Tid til bedring</p>
+                <p className="mt-2 text-2xl font-black text-white">1–8</p>
+                <p className="mt-1 text-sm text-slate-400">uger typisk</p>
+              </div>
+              <div className="rounded-2xl border border-white/10 bg-white/[0.045] p-4">
+                <p className="text-xs uppercase tracking-[0.16em] text-cyan-300">Øvelser</p>
+                <p className="mt-2 text-2xl font-black text-white">3–4</p>
+                <p className="mt-1 text-sm text-slate-400">gange ugentligt</p>
+              </div>
+              <div className="rounded-2xl border border-white/10 bg-white/[0.045] p-4">
+                <p className="text-xs uppercase tracking-[0.16em] text-cyan-300">Vigtigste tip</p>
+                <p className="mt-2 text-2xl font-black text-white">10%</p>
+                <p className="mt-1 text-sm text-slate-400">regel pr. uge</p>
+              </div>
+            </div>
+
+            <div className="rounded-3xl border border-white/10 bg-white/[0.045] p-4 sm:p-6">
+              <h3 className="text-xl font-bold text-white">Sådan bruger du siden</h3>
+              <div className="mt-4 grid gap-3 md:grid-cols-3">
+                <div className="rounded-2xl border border-white/10 bg-slate-900/60 p-4">
+                  <p className="font-semibold text-cyan-300">1. Genkend symptomerne</p>
+                  <p className="mt-2 text-sm leading-6 text-slate-400">Find den skade, du mener du har, og læs symptomerne gennem.</p>
+                </div>
+                <div className="rounded-2xl border border-white/10 bg-slate-900/60 p-4">
+                  <p className="font-semibold text-cyan-300">2. Start behandlingen</p>
+                  <p className="mt-2 text-sm leading-6 text-slate-400">Tag den anbefalede hvile, is og øvelser i gang omgående.</p>
+                </div>
+                <div className="rounded-2xl border border-white/10 bg-slate-900/60 p-4">
+                  <p className="font-semibold text-cyan-300">3. Forebyg fremtidigt</p>
+                  <p className="mt-2 text-sm leading-6 text-slate-400">Brug forebyggelses-tips som en del af din daglige rutine.</p>
+                </div>
+              </div>
+            </div>
+
+            <div className="space-y-4">
+              <h3 className="text-xl font-bold text-white">De 10 mest almindelige løbeskader</h3>
+              <div className="grid gap-4 lg:grid-cols-2">
+                {injuryPreventionGuides.map((injury) => (
+                  <article key={injury.name} className="rounded-3xl border border-white/10 bg-slate-900/60 p-5 shadow-xl shadow-slate-950/20">
+                    <div className="flex items-start justify-between gap-3">
+                      <div>
+                        <p className="text-xs font-bold uppercase tracking-[0.16em] text-rose-300">Skade</p>
+                        <h3 className="mt-2 text-xl font-black text-white">{injury.name}</h3>
+                      </div>
+                      <a
+                        href={injury.video}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="inline-flex items-center rounded-full border border-red-400/30 bg-red-500/10 px-3 py-1.5 text-xs font-semibold text-red-200 transition hover:bg-red-500/20"
+                      >
+                        YouTube
+                      </a>
+                    </div>
+
+                    <div className="mt-4 space-y-3">
+                      <div className="rounded-2xl border border-rose-400/20 bg-rose-400/5 p-3">
+                        <p className="text-xs font-bold uppercase tracking-[0.14em] text-rose-300">Symptomer</p>
+                        <p className="mt-2 text-sm leading-6 text-slate-200">{injury.symptoms}</p>
+                      </div>
+
+                      <div className="rounded-2xl border border-emerald-400/20 bg-emerald-400/5 p-3">
+                        <p className="text-xs font-bold uppercase tracking-[0.14em] text-emerald-300">Behandling</p>
+                        <p className="mt-2 text-sm leading-6 text-slate-200">{injury.treatment}</p>
+                      </div>
+
+                      <div>
+                        <p className="text-xs font-bold uppercase tracking-[0.14em] text-slate-400">Hyppighed</p>
+                        <p className="mt-2 text-sm text-white">{injury.frequency}</p>
+                      </div>
+
+                      <div className="rounded-2xl border border-amber-400/20 bg-amber-400/5 p-3">
+                        <p className="text-xs font-bold uppercase tracking-[0.14em] text-amber-300">Forebyggelse</p>
+                        <p className="mt-2 text-sm leading-6 text-slate-200">{injury.prevention}</p>
+                      </div>
+                    </div>
+                  </article>
+                ))}
+              </div>
+            </div>
+          </section>
+        )}
+
+        {activePage === "running-technique" && (
+          <section className="space-y-6">
+            <div className="rounded-3xl border border-cyan-400/20 bg-gradient-to-br from-cyan-400/10 via-slate-950 to-slate-900 p-5 shadow-2xl sm:p-8">
+              <p className="text-xs font-bold uppercase tracking-[0.18em] text-cyan-300">Værktøjskasse</p>
+              <h2 className="mt-3 text-3xl font-black tracking-tight sm:text-5xl">Løbeteknik</h2>
+              <p className="mt-4 max-w-3xl text-sm leading-7 text-slate-300 sm:text-base">
+                Løbeteknik handler om at få mere fremdrift med mindre spild. Hvis du arbejder med kvalitet frem for mængde, bliver løbet mere effektivt, mere behageligt og mindre belastende for kroppen.
+              </p>
+            </div>
+
+            <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+              <div className="rounded-2xl border border-white/10 bg-white/[0.045] p-4">
+                <p className="text-xs uppercase tracking-[0.16em] text-cyan-300">Kvalitet</p>
+                <p className="mt-2 text-2xl font-black text-white">2–4</p>
+                <p className="mt-1 text-sm text-slate-400">øvelser pr. session</p>
+              </div>
+              <div className="rounded-2xl border border-white/10 bg-white/[0.045] p-4">
+                <p className="text-xs uppercase tracking-[0.16em] text-cyan-300">Hyppighed</p>
+                <p className="mt-2 text-2xl font-black text-white">1–2</p>
+                <p className="mt-1 text-sm text-slate-400">gange om ugen</p>
+              </div>
+              <div className="rounded-2xl border border-white/10 bg-white/[0.045] p-4">
+                <p className="text-xs uppercase tracking-[0.16em] text-cyan-300">Længde</p>
+                <p className="mt-2 text-2xl font-black text-white">10–20 m</p>
+                <p className="mt-1 text-sm text-slate-400">pr. gentagelse</p>
+              </div>
+              <div className="rounded-2xl border border-white/10 bg-white/[0.045] p-4">
+                <p className="text-xs uppercase tracking-[0.16em] text-cyan-300">Mål</p>
+                <p className="mt-2 text-2xl font-black text-white">Let</p>
+                <p className="mt-1 text-sm text-slate-400">og kontrolleret bevægelse</p>
+              </div>
+            </div>
+
+            <div className="rounded-3xl border border-white/10 bg-white/[0.045] p-4 sm:p-6">
+              <h3 className="text-xl font-bold text-white">Sådan bruger du siden</h3>
+              <div className="mt-4 grid gap-3 md:grid-cols-3">
+                <div className="rounded-2xl border border-white/10 bg-slate-900/60 p-4">
+                  <p className="font-semibold text-cyan-300">1. Vælg 2–4 øvelser</p>
+                  <p className="mt-2 text-sm leading-6 text-slate-400">Start med de øvelser, der matcher det, du vil blive bedre til.</p>
+                </div>
+                <div className="rounded-2xl border border-white/10 bg-slate-900/60 p-4">
+                  <p className="font-semibold text-cyan-300">2. Lav dem langsomt</p>
+                  <p className="mt-2 text-sm leading-6 text-slate-400">Kvalitet kommer før fart. Det skal føles kontrolleret, ikke hektisk.</p>
+                </div>
+                <div className="rounded-2xl border border-white/10 bg-slate-900/60 p-4">
+                  <p className="font-semibold text-cyan-300">3. Brug dem som opvarmning</p>
+                  <p className="mt-2 text-sm leading-6 text-slate-400">De passer godt inden en let løbetur eller et kvalitetsløb.</p>
+                </div>
+              </div>
+            </div>
+
+            <div className="grid gap-4 lg:grid-cols-2">
+              {runningTechniqueExercises.map((exercise) => (
+                <article key={exercise.name} className="rounded-3xl border border-white/10 bg-slate-900/60 p-5 shadow-xl shadow-slate-950/20">
+                  <div className="flex items-start justify-between gap-3">
+                    <div>
+                      <p className="text-xs font-bold uppercase tracking-[0.16em] text-cyan-300">Øvelse</p>
+                      <h3 className="mt-2 text-2xl font-black text-white">{exercise.name}</h3>
+                    </div>
+                    <a
+                      href={exercise.video}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="inline-flex items-center rounded-full border border-red-400/30 bg-red-500/10 px-3 py-1.5 text-xs font-semibold text-red-200 transition hover:bg-red-500/20"
+                    >
+                      YouTube
+                    </a>
+                  </div>
+
+                  <div className="mt-4 rounded-2xl border border-cyan-400/20 bg-cyan-400/5 p-3">
+                    <p className="text-xs font-bold uppercase tracking-[0.14em] text-cyan-300">Fokus</p>
+                    <p className="mt-2 text-sm leading-6 text-slate-200">{exercise.focus}</p>
+                  </div>
+
+                  <div className="mt-4 space-y-3">
+                    <div>
+                      <p className="text-xs font-bold uppercase tracking-[0.14em] text-slate-400">Sådan gør du</p>
+                      <p className="mt-2 text-sm leading-6 text-slate-300">{exercise.how}</p>
+                    </div>
+                    <div>
+                      <p className="text-xs font-bold uppercase tracking-[0.14em] text-slate-400">Hyppighed</p>
+                      <p className="mt-2 text-sm font-medium text-white">{exercise.frequency}</p>
+                    </div>
+                  </div>
+                </article>
+              ))}
+            </div>
+          </section>
+        )}
 
         {activePage === "exercises" && <>
           <section className="rounded-3xl border border-white/10 bg-white/[0.045] p-4 sm:p-7">
